@@ -1,10 +1,11 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function PostCard({ post }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
+    // kasnije može da vodi na detalje objave
     navigate(`/theme/${post.themeId}/post/${post.id}`);
   };
 

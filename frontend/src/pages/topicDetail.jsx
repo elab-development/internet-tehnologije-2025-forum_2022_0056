@@ -4,7 +4,7 @@ import Weather from "../components/Weather";
 import PostCard from "../components/PostCard";
 
 function TopicDetail() {
-  const { themeId } = useParams(); // dohvatimo ID teme iz URL-a
+  const { themeId } = useParams(); // dohvat ID teme iz URL-a
   const [theme, setTheme] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +25,8 @@ function TopicDetail() {
         if (!resPosts.ok) throw new Error("Failed to fetch posts");
         const postsData = await resPosts.json();
 
-        setTheme(themeData);
-        setPosts(postsData);
+        setTheme(themeData.theme);
+        setPosts(postsData.posts);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -46,11 +46,10 @@ function TopicDetail() {
       <h1>{theme.name}</h1>
       <p>{theme.description}</p>
 
-      {/* Weather komponenta */}
       <Weather themeId={theme.id} />
 
-      <h2>Objave</h2>
-      {posts.length === 0 && <p>Još nema objava u ovoj temi.</p>}
+      <h2>Objave u ovoj temi</h2>
+      {posts.length === 0 && <p>Još nema objava.</p>}
 
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
