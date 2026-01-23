@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import Weather from "./components/Weather";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import TopicDetail from "./pages/topicDetail"; // kreiraćemo ovaj fajl
+import TopicDetail from "./pages/topicDetail";
+import Navbar from "./components/Navbar";
 
 
 function App() {
   return (
     <Router>
+      <Navbar user={null} />
       <Routes>
         {/* Početna stranica */}
         <Route path="/" element={<Home />} />
