@@ -1,10 +1,31 @@
 import { useEffect, useState } from "react";
 import Weather from "./components/Weather";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import TopicDetail from "./pages/topicDetail"; // kreiraćemo ovaj fajl
+
 
 function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Početna stranica */}
+        <Route path="/" element={<Home />} />
+
+        {/* Stranica detalja teme */}
+        <Route path="/theme/:themeId" element={<TopicDetail />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+function Home() {
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate(); // hook za navigaciju
 
   useEffect(() => {
     async function fetchThemes() {
@@ -18,8 +39,6 @@ function App() {
         }
 
         const data = await res.json();
-        console.log("API RESPONSE:", data);
-
         setThemes(data.themes);
       } catch (err) {
         console.error(err);
@@ -42,9 +61,16 @@ function App() {
       {themes.length === 0 && <p>No themes found.</p>}
 
       {themes.map((theme) => (
-        <div key={theme.id} className="theme-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2>{theme.name}</h2>
-          <p>{theme.description}</p>
+        <div
+          key={theme.id}
+          className="theme-card"
+          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
+          onClick={() => navigate(`/theme/${theme.id}`)} // klik vodi na detalje teme
+        >
+          <div>
+            <h2>{theme.name}</h2>
+            <p>{theme.description}</p>
+          </div>
 
           {/* Render Weather komponentu za svaku temu */}
           {theme.id && <Weather themeId={theme.id} />}
@@ -53,5 +79,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
