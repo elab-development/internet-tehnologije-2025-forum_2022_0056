@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Weather from "./components/Weather";
 
-
 function App() {
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,6 @@ function App() {
         const data = await res.json();
         console.log("API RESPONSE:", data);
 
-        // ⬇⬇⬇ OVO JE KLJUČ
         setThemes(data.themes);
       } catch (err) {
         console.error(err);
@@ -44,14 +42,12 @@ function App() {
       {themes.length === 0 && <p>No themes found.</p>}
 
       {themes.map((theme) => (
-        <div key={theme.id} className="theme-card">
+        <div key={theme.id} className="theme-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2>{theme.name}</h2>
           <p>{theme.description}</p>
 
-          {theme.name === "Triglav" && (
-            <Weather themeId={theme.id} />
-          )}
-
+          {/* Render Weather komponentu za svaku temu */}
+          {theme.id && <Weather themeId={theme.id} />}
         </div>
       ))}
     </div>
