@@ -3,7 +3,8 @@ import Weather from "./components/Weather";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import TopicDetail from "./pages/topicDetail";
 import Navbar from "./components/Navbar";
-
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -15,6 +16,10 @@ function App() {
 
         {/* Stranica detalja teme */}
         <Route path="/theme/:themeId" element={<TopicDetail />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
       </Routes>
     </Router>
   );
