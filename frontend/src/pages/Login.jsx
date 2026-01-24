@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 function Login() {
+  const navigate = useNavigate();
+  const { setUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,23 +16,53 @@ function Login() {
     setError(null);
 
     try {
+      // 1️⃣ UZMI CSRF COOKIE
+      await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+        credentials: "include",
+      });
+
+      // 2️⃣ POŠALJI LOGIN PODATKE
       const res = await fetch("http://localhost:8000/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify({ email, password }),
         credentials: "include",
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Login failed");
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Login failed");
       }
 
-      const userData = await res.json();
-      console.log("Logged in user:", userData);
-      // ovde možeš setovati user state u App.jsx
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      
+      // 3️⃣ DOH VATI KORISNIČKE PODATKE
+      const userRes = await fetch("http://localhost:8000/api/user", {
+        headers: { 
+          "Authorization": `Bearer ${data.access_token}`,
+          "Accept": "application/json"
+        },
+        credentials: "include",
+      });
+
+      if (!userRes.ok) {
+        throw new Error("Cannot fetch user data");
+      }
+
+      const userData = await userRes.json();
+      setUser(userData);
+      
+      // 4️⃣ PREUSMERI NA POČETNU
+      navigate("/");
+      
     } catch (err) {
+      console.error("❌ Login error:", err);
       setError(err.message);
+      localStorage.removeItem("token");
     } finally {
       setLoading(false);
     }
@@ -54,6 +88,7 @@ function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={loading}
           style={inputStyle}
         />
         <input
@@ -62,12 +97,25 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={loading}
           style={inputStyle}
         />
-        <button type="submit" disabled={loading} style={buttonStyle}>
+        <button 
+          type="submit" 
+          disabled={loading} 
+          style={{
+            ...buttonStyle,
+            backgroundColor: loading ? "#90caf9" : "#42a5f5",
+            cursor: loading ? "not-allowed" : "pointer"
+          }}
+        >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <p>Nemate nalog? <span onClick={() => navigate("/register")} style={{ color: "#42a5f5", cursor: "pointer", textDecoration: "underline" }}>Registrujte se</span></p>
+      </div>
     </div>
   );
 }
@@ -77,6 +125,8 @@ const inputStyle = {
   borderRadius: "6px",
   border: "1px solid #ccc",
   fontSize: "1rem",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const buttonStyle = {
@@ -88,6 +138,7 @@ const buttonStyle = {
   fontWeight: "bold",
   cursor: "pointer",
   transition: "background-color 0.2s ease",
+  width: "100%",
 };
 
 export default Login;

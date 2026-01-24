@@ -8,7 +8,7 @@ function ThemeList({ onSelectTheme }) {
     fetch("http://127.0.0.1:8000/api/themes")
       .then((res) => res.json())
       .then((data) => {
-        setThemes(data);
+        setThemes(data.themes || []);
         setLoading(false);
       })
       .catch((err) => console.error("Error fetching themes:", err));
