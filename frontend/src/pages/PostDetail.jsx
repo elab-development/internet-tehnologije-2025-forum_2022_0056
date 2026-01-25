@@ -1,10 +1,10 @@
-// pages/PostDetail.jsx
+// pages/PostDetail.jsx - POPRAVLJENA VERZIJA
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 
 function PostDetail() {
-  const { postId } = useParams(); // Uzimamo ID objave iz URL-a
+  const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [replies, setReplies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,19 +14,29 @@ function PostDetail() {
   useEffect(() => {
     async function fetchPostAndReplies() {
       try {
-        // 1. Dohvati objavu
+        // 1. Dohvati objavu - KORISTIMO VAŠU show() METODU
         const postRes = await fetch(`http://localhost:8000/api/posts/${postId}`);
         if (!postRes.ok) throw new Error('Failed to fetch post');
         const postData = await postRes.json();
         
-        // 2. Dohvati odgovore (replies)
+        // VAŠ API vraća { post: { ... } }
+        const postObj = postData.post || postData;
+        
+        // 2. Dohvati odgovore - KORISTIMO VAŠU replies() METODU
         const repliesRes = await fetch(`http://localhost:8000/api/posts/${postId}/replies`);
-        const repliesData = await repliesRes.ok ? await repliesRes.json() : { replies: [] };
+        let repliesArray = [];
+        
+        if (repliesRes.ok) {
+          const repliesData = await repliesRes.json();
+          // VAŠ API vraća { replies: [ ... ] }
+          repliesArray = repliesData.replies || repliesData || [];
+        }
 
-        setPost(postData.post || postData);
-        setReplies(repliesData.replies || repliesData || []);
+        setPost(postObj);
+        setReplies(repliesArray);
       } catch (err) {
         setError(err.message);
+        console.error('Fetch error:', err);
       } finally {
         setLoading(false);
       }
@@ -64,7 +74,7 @@ function PostDetail() {
         <Button onClick={() => navigate(-1)} style={{ marginRight: '10px' }}>
           ← Nazad
         </Button>
-        <Link to={`/theme/${post.theme_id}`}>
+        <Link to={`/theme/${post.theme_id || post.theme?.id}`}>
           <Button variant="outline">Vrati se na temu</Button>
         </Link>
       </div>
@@ -80,7 +90,7 @@ function PostDetail() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
           <h1 style={{ margin: 0, color: '#0d47a1' }}>{post.title}</h1>
           <span style={{ color: '#666', fontSize: '0.9rem' }}>
-            {new Date(post.created_at).toLocaleDateString('sr-RS')}
+            {post.created_at ? new Date(post.created_at).toLocaleDateString('sr-RS') : ''}
           </span>
         </div>
 
@@ -110,7 +120,7 @@ function PostDetail() {
             👍 {post.likes_count || 0}
           </Button>
           <Button onClick={() => alert('Odgovori će biti omogućeni nakon logina!')}>
-            💬 Odgovori
+            💬 Odgovori ({post.replies_count || 0})
           </Button>
           <Button variant="outline" onClick={() => alert('Deljenje će biti omogućeno!')}>
             📤 Podeli
@@ -144,7 +154,7 @@ function PostDetail() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <span style={{ fontWeight: 'bold' }}>{reply.author?.name || 'Korisnik'}</span>
                   <span style={{ color: '#888', fontSize: '0.9rem' }}>
-                    {new Date(reply.created_at).toLocaleDateString('sr-RS')}
+                    {reply.created_at ? new Date(reply.created_at).toLocaleDateString('sr-RS') : ''}
                   </span>
                 </div>
                 <p style={{ margin: 0, lineHeight: '1.5' }}>{reply.content}</p>
