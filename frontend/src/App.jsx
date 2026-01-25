@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import { UserProvider } from "./contexts/UserContext";
+import PostDetail from './pages/PostDetail';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/theme/:themeId" element={<TopicDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/post/:postId" element={<PostDetail />} />
         </Routes>
       </Router>
     </UserProvider>

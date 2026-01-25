@@ -51,9 +51,37 @@ function TopicDetail() {
       <h2>Objave u ovoj temi</h2>
       {posts.length === 0 && <p>Još nema objava.</p>}
 
+      <div style={{ marginTop: '30px' }}>
+  <h2 style={{ color: '#0d47a1', marginBottom: '20px' }}>
+    📝 Objave u ovoj temi ({posts.length})
+  </h2>
+  
+  {posts.length === 0 ? (
+    <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '10px' }}>
+      <p style={{ fontSize: '1.1rem', color: '#666' }}>Još nema objava u ovoj temi.</p>
+      <button 
+        onClick={() => alert('Prijavite se da biste objavili!')}
+        style={{
+          padding: '10px 20px',
+          background: '#42a5f5',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          marginTop: '10px'
+        }}
+      >
+        Budite prvi koji će objaviti!
+      </button>
+    </div>
+  ) : (
+    <div>
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
+    </div>
+  )}
+</div>
     </div>
   );
 }
