@@ -1,7 +1,9 @@
-// pages/PostDetail.jsx - POPRAVLJENA VERZIJA
-import React, { useEffect, useState } from 'react';
+// pages/PostDetail.jsx - ISPRAVLJENA VERZIJA
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { UserContext } from '../contexts/UserContext';
 import Button from '../components/Button';
+import LikeButton from '../components/LikeButton';
 
 function PostDetail() {
   const { postId } = useParams();
@@ -10,25 +12,46 @@ function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  const refreshPost = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/posts/${postId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPost(data.post || data);
+      }
+    } catch (err) {
+      console.error('Greška pri osvežavanju:', err);
+    }
+  };
+
+  const handleLikeChange = (isLiked, newLikesCount) => {
+    refreshPost();
+    
+    if (post) {
+      setPost({
+        ...post,
+        likes_count: newLikesCount,
+        likes: isLiked ? [{ id: Date.now() }] : []
+      });
+    }
+  };
 
   useEffect(() => {
     async function fetchPostAndReplies() {
       try {
-        // 1. Dohvati objavu - KORISTIMO VAŠU show() METODU
         const postRes = await fetch(`http://localhost:8000/api/posts/${postId}`);
         if (!postRes.ok) throw new Error('Failed to fetch post');
         const postData = await postRes.json();
         
-        // VAŠ API vraća { post: { ... } }
         const postObj = postData.post || postData;
         
-        // 2. Dohvati odgovore - KORISTIMO VAŠU replies() METODU
         const repliesRes = await fetch(`http://localhost:8000/api/posts/${postId}/replies`);
         let repliesArray = [];
         
         if (repliesRes.ok) {
           const repliesData = await repliesRes.json();
-          // VAŠ API vraća { replies: [ ... ] }
           repliesArray = repliesData.replies || repliesData || [];
         }
 
@@ -115,15 +138,40 @@ function PostDetail() {
           {post.content}
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
-          <Button onClick={() => alert('Like funkcionalnost će biti dodata!')}>
-            👍 {post.likes_count || 0}
+        {/* ACTION BUTTONS */}
+        <div style={{ display: 'flex', gap: '15px', marginTop: '20px', alignItems: 'center' }}>
+          <LikeButton 
+            postId={post.id} 
+            initialLikes={post.likes_count || 0}
+            isInitiallyLiked={post.likes && post.likes.length > 0}
+            onLikeChange={handleLikeChange}
+          />
+
+          <Button onClick={() => {
+            if (!user) {
+              alert('Morate biti prijavljeni da biste odgovorili!');
+              return;
+            }
+            alert('Funkcionalnost odgovaranja će biti dodata!');
+          }}>
+            <span style={{ marginRight: '8px' }}>💬</span>
+            Odgovori ({post.replies_count || 0})
           </Button>
-          <Button onClick={() => alert('Odgovori će biti omogućeni nakon logina!')}>
-            💬 Odgovori ({post.replies_count || 0})
-          </Button>
-          <Button variant="outline" onClick={() => alert('Deljenje će biti omogućeno!')}>
-            📤 Podeli
+
+          <Button onClick={() => {
+            if (navigator.share) {
+              navigator.share({
+                title: post.title,
+                text: post.content.substring(0, 100) + '...',
+                url: window.location.href,
+              });
+            } else {
+              navigator.clipboard.writeText(window.location.href);
+              alert('Link kopiran u clipboard!');
+            }
+          }}>
+            <span style={{ marginRight: '8px' }}>📤</span>
+            Podeli
           </Button>
         </div>
       </div>
@@ -137,7 +185,13 @@ function PostDetail() {
         {replies.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: '#666' }}>
             <p>Još nema odgovora. Budite prvi koji će odgovoriti!</p>
-            <Button onClick={() => alert('Prijavite se da biste odgovorili!')}>
+            <Button onClick={() => {
+              if (!user) {
+                alert('Morate biti prijavljeni da biste odgovorili!');
+                return;
+              }
+              alert('Funkcionalnost odgovaranja će biti dodata!');
+            }}>
               Dodaj odgovor
             </Button>
           </div>
