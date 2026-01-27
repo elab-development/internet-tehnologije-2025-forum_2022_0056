@@ -333,3 +333,44 @@ select:focus {
 .success-message {
   animation: fadeInUp 0.5s ease;
 }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+
+  /* Hover efekti za tekst */
+  .theme-card:hover .theme-title {
+    color: #1a237e;
+    padding-left: 5px;
+  }
+
+  .theme-card:hover .theme-description {
+    color: #37474f;
+  }
+
+  /* Dekorativni elementi za header */
+  .header-decoration {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+
+  .decoration-1 {
+    top: -100px;
+    right: -50px;
+    background: radial-gradient(circle, #3498db, transparent);
+  }
+
+  .decoration-2 {
+    bottom: -80px;
+    left: -30px;
+    background: radial-gradient(circle, #2ecc71, transparent);
+  }
