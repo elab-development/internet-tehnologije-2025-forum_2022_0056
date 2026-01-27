@@ -232,3 +232,67 @@ h1 {
   transform: translateY(-2px) !important;
   box-shadow: 0 8px 25px rgba(255, 68, 68, 0.3) !important;
 }
+
+
+
+/* WEATHER COMPONENT ANIMATIONS */
+
+/* Sunce pulsira */
+@keyframes sunPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+  }
+  50% { 
+    transform: scale(1.1); 
+    filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.8));
+  }
+}
+
+/* Oblaci i drugi elementi lebde */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0); 
+  }
+  50% { 
+    transform: translateY(-5px); 
+  }
+}
+
+/* Loading shimmer efekat */
+@keyframes loadingShimmer {
+  0% { 
+    background-position: -200% 0; 
+  }
+  100% { 
+    background-position: 200% 0; 
+  }
+}
+
+/* Blagi treptaj za ažuriranje */
+@keyframes updateBlink {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.7; 
+  }
+}
+
+/* Hover efekat za celu weather karticu */
+.weather-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive podešavanja */
+@media (max-width: 768px) {
+  .weather-card {
+    min-width: 180px !important;
+    padding: 15px !important;
+  }
+  
+  .weather-temperature {
+    font-size: 2.2rem !important;
+  }
+}
