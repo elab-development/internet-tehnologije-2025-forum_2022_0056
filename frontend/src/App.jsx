@@ -8,6 +8,7 @@ import { UserProvider } from "./contexts/UserContext";
 import PostDetail from './pages/PostDetail';
 import CreatePost from './pages/CreatePost';
 import PrivateRoute from './components/PrivateRoute';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -23,6 +24,11 @@ function App() {
           <Route path="/create-post" element={
             <PrivateRoute>
               <CreatePost />
+            </PrivateRoute>
+          } />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           } />
         </Routes>
