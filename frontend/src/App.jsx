@@ -6,6 +6,8 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import { UserProvider } from "./contexts/UserContext";
 import PostDetail from './pages/PostDetail';
+import CreatePost from './pages/CreatePost';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -18,6 +20,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/post/:postId" element={<PostDetail />} />
+          <Route path="/create-post" element={
+            <PrivateRoute>
+              <CreatePost />
+            </PrivateRoute>
+          } />
         </Routes>
       </Router>
     </UserProvider>
