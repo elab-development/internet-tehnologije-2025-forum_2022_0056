@@ -274,7 +274,7 @@ function AdminPanel() {
         <div style={styles.headerContent}>
           <h1 style={styles.title}>👑 Admin Panel 👑</h1>
           <p style={styles.subtitle}>
-            Dobrodošao, <strong style={{ color: '#f5d14c' }}>{user.name}</strong>
+            <strong style={{ color: '#f5d14c' }}>{user.name}</strong>
             <span style={{ marginLeft: '10px', background: '#f5d14c', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
               {user.role.toUpperCase()}
             </span>
@@ -301,7 +301,7 @@ function AdminPanel() {
           <div style={styles.statIcon}>👥</div>
           <div style={styles.statInfo}>
             <h3 style={styles.statNumber}>{stats.users}</h3>
-            <p style={styles.statLabel}>Korisnika</p>
+            <p style={styles.statLabel}>Broj Korisnika</p>
           </div>
         </div>
         
@@ -309,7 +309,7 @@ function AdminPanel() {
           <div style={styles.statIcon}>📝</div>
           <div style={styles.statInfo}>
             <h3 style={styles.statNumber}>{stats.posts}</h3>
-            <p style={styles.statLabel}>Objave</p>
+            <p style={styles.statLabel}>Broj Objava</p>
           </div>
         </div>
         
@@ -317,7 +317,7 @@ function AdminPanel() {
           <div style={styles.statIcon}>🏷️</div>
           <div style={styles.statInfo}>
             <h3 style={styles.statNumber}>{stats.themes}</h3>
-            <p style={styles.statLabel}>Teme</p>
+            <p style={styles.statLabel}>Broj Tema</p>
           </div>
         </div>
       </div>
