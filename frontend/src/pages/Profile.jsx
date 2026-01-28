@@ -1,4 +1,4 @@
-// pages/Profile.jsx
+// pages/Profile.jsx - ISPRAVLJENA VERZIJA
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
@@ -10,8 +10,9 @@ function Profile() {
   
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [userLikes, setUserLikes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('posts'); // 'posts', 'likes', 'info'
+  const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
     if (!user) {
@@ -23,7 +24,7 @@ function Profile() {
       try {
         setLoading(true);
         
-        // 1. Osnovni podaci (već imamo iz context-a, ali možemo osvežiti)
+        // 1. Dobavi kompletnu korisnikove podatke
         const token = localStorage.getItem('token');
         const userRes = await fetch('http://localhost:8000/api/user', {
           headers: { 
@@ -35,14 +36,35 @@ function Profile() {
         
         if (userRes.ok) {
           const userData = await userRes.json();
+          console.log('User data:', userData); // Debug
           setUserData(userData);
+        } else {
+          // Ako detaljni API ne radi, koristi osnovne podatke iz context-a
+          setUserData(user);
         }
         
-        // 2. Dohvati korisnikove objave
+        // 2. Dobavi korisnikove objave
         const postsRes = await fetch(`http://localhost:8000/api/posts?author_id=${user.id}`);
         if (postsRes.ok) {
           const postsData = await postsRes.json();
+          console.log('Posts data:', postsData); // Debug
           setUserPosts(postsData.posts || []);
+        }
+        
+        // 3. Dobavi lajkovane objave
+        const likesRes = await fetch(`http://localhost:8000/api/likes?user_id=${user.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          },
+        });
+        
+        if (likesRes.ok) {
+          const likesData = await likesRes.json();
+          console.log('Likes data:', likesData); // Debug
+          // Ekstraktuj postove iz lajkova
+          const likedPosts = likesData.likes?.map(like => like.post) || [];
+          setUserLikes(likedPosts);
         }
         
       } catch (err) {
@@ -55,6 +77,9 @@ function Profile() {
     fetchUserData();
   }, [user, navigate]);
 
+  // Fallback ako userData nije učitano
+  const profileUser = userData || user;
+  
   if (!user) {
     return (
       <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -85,7 +110,6 @@ function Profile() {
     );
   }
 
-  const profileUser = userData || user;
   const initials = profileUser.name
     .split(' ')
     .map(n => n[0])
@@ -104,6 +128,11 @@ function Profile() {
   };
 
   const roleInfo = getRoleBadge(profileUser.role);
+
+  // Izračunaj broj lajkova - uzmi iz userData ili prebroji lajkovane postove
+  const postsCount = userPosts.length;
+  const likesCount = userLikes.length;
+  const repliesCount = 0; // Ovo možete izračunati ako imate podatke
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
@@ -204,8 +233,19 @@ function Profile() {
                 {roleInfo.icon} {roleInfo.label}
               </span>
               
-              
-              
+              <span style={{
+                background: profileUser.can_publish ? '#4caf50' : '#f44336',
+                color: 'white',
+                padding: '6px 15px',
+                borderRadius: '20px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                {profileUser.can_publish ? '✅ Može objavljivati' : '❌ Ne može objavljivati'}
+              </span>
             </div>
 
             <div style={{ 
@@ -215,6 +255,9 @@ function Profile() {
               fontSize: '0.95rem',
               opacity: 0.9
             }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📧 {profileUser.email}
+              </span>
               
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 📅 Član od: {new Date().toLocaleDateString('sr-RS')}
@@ -239,8 +282,8 @@ function Profile() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '2rem', color: '#42a5f5', marginBottom: '10px' }}>📝</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0d47a1' }}>
-            {userPosts.length}
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
+            {postsCount}
           </div>
           <div style={{ color: '#666', fontSize: '0.9rem' }}>Objave</div>
         </div>
@@ -252,23 +295,9 @@ function Profile() {
           boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '2rem', color: '#66bb6a', marginBottom: '10px' }}>💬</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0d47a1' }}>
-            {profileUser.replies_count || 0}
-          </div>
-          <div style={{ color: '#666', fontSize: '0.9rem' }}>Odgovori</div>
-        </div>
-
-        <div style={{
-          background: 'white',
-          borderRadius: '12px',
-          padding: '20px',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-          textAlign: 'center'
-        }}>
           <div style={{ fontSize: '2rem', color: '#ff7043', marginBottom: '10px' }}>❤️</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0d47a1' }}>
-            {profileUser.likes_count || 0}
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
+            {likesCount}
           </div>
           <div style={{ color: '#666', fontSize: '0.9rem' }}>Lajkovi</div>
         </div>
@@ -280,8 +309,22 @@ function Profile() {
           boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '2rem', color: '#ab47bc', marginBottom: '10px' }}>🏆</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0d47a1' }}>
+          <div style={{ fontSize: '2rem', color: '#ab47bc', marginBottom: '10px' }}>💬</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
+            {repliesCount}
+          </div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>Odgovori</div>
+        </div>
+
+        <div style={{
+          background: 'white',
+          borderRadius: '12px',
+          padding: '20px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2rem', color: '#66bb6a', marginBottom: '10px' }}>🏆</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
             {profileUser.role === 'admin' ? 'Admin' : 
              profileUser.role === 'moderator' ? 'Moderator' : 'Član'}
           </div>
@@ -308,10 +351,9 @@ function Profile() {
             fontWeight: '600',
             fontSize: '0.95rem',
             borderRadius: '8px 8px 0 0',
-            transition: 'all 0.2s ease'
           }}
         >
-          📝 Moje objave ({userPosts.length})
+          📝 Moje objave ({postsCount})
         </button>
         
         <button
@@ -326,10 +368,9 @@ function Profile() {
             fontWeight: '600',
             fontSize: '0.95rem',
             borderRadius: '8px 8px 0 0',
-            transition: 'all 0.2s ease'
           }}
         >
-          ❤️ Lajkovano ({profileUser.liked_posts_count || 0})
+          ❤️ Lajkovano ({likesCount})
         </button>
         
         <button
@@ -344,7 +385,6 @@ function Profile() {
             fontWeight: '600',
             fontSize: '0.95rem',
             borderRadius: '8px 8px 0 0',
-            transition: 'all 0.2s ease'
           }}
         >
           ℹ️ Informacije
@@ -399,17 +439,32 @@ function Profile() {
         )}
 
         {activeTab === 'likes' && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            background: '#f9f9f9',
-            borderRadius: '12px'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>❤️</div>
-            <h3 style={{ color: '#666' }}>Lista lajkovanih objava</h3>
-            <p style={{ color: '#999' }}>
-              Ova funkcionalnost će biti dodata u narednoj verziji.
-            </p>
+          <div>
+            {userLikes.length === 0 ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '40px',
+                background: '#f9f9f9',
+                borderRadius: '12px'
+              }}>
+                <div style={{ fontSize: '3rem', marginBottom: '20px' }}>❤️</div>
+                <h3 style={{ color: '#666' }}>Još niste lajkovali nijednu objavu</h3>
+                <p style={{ color: '#999' }}>
+                  Pronađite zanimljive objave i pokažite im podršku!
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h3 style={{ marginBottom: '20px', color: '#0d47a1' }}>
+                  Lajkovane objave ({userLikes.length})
+                </h3>
+                <div>
+                  {userLikes.map(post => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -471,26 +526,24 @@ function Profile() {
                 </div>
               </div>
 
-              {profileUser.can_publish !== undefined && (
-                <div>
-                  <label style={{ display: 'block', color: '#666', fontSize: '0.9rem', marginBottom: '5px' }}>
-                    Prava objavljivanja
-                  </label>
-                  <div style={{
-                    padding: '12px 15px',
-                    background: profileUser.can_publish ? '#e8f5e9' : '#ffebee',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    color: profileUser.can_publish ? '#2e7d32' : '#c62828',
-                    fontWeight: '500',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    {profileUser.can_publish ? '✅ Može da objavljuje' : '❌ Ne može da objavljuje'}
-                  </div>
+              <div>
+                <label style={{ display: 'block', color: '#666', fontSize: '0.9rem', marginBottom: '5px' }}>
+                  Prava objavljivanja
+                </label>
+                <div style={{
+                  padding: '12px 15px',
+                  background: profileUser.can_publish ? '#e8f5e9' : '#ffebee',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  color: profileUser.can_publish ? '#2e7d32' : '#c62828',
+                  fontWeight: '500',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  {profileUser.can_publish ? '✅ Može da objavljuje' : '❌ Ne može da objavljuje'}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* ACTION BUTTONS */}

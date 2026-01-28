@@ -65,4 +65,6 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/admin/users/{user}/toggle-publish', [AdminController::class, 'togglePublish']);
     Route::put('/admin/users/{user}/role', [AdminController::class, 'updateRole']);
     Route::get('/admin/stats', [AdminController::class, 'getStats']);
+
+    Route::get('/likes', [LikeController::class, 'index']);
 });
