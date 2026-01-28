@@ -35,7 +35,7 @@ function Navbar() {
         ) : (
           <>
             {/* Role badge - samo ikona */}
-            <div style={styles.userInfo}>
+            {/*<div style={styles.userInfo}>
               {user.role === "admin" && (
                 <span style={styles.roleBadge.admin} title="Administrator">
                   👑
@@ -46,7 +46,7 @@ function Navbar() {
                   🛡️
                 </span>
               )}
-            </div>
+            </div>*/}
 
             {/* Akcioni dugmici */}
             <div style={styles.actionButtons}>

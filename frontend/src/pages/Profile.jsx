@@ -1,4 +1,3 @@
-// pages/Profile.jsx - ISPRAVLJENA VERZIJA
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
@@ -13,6 +12,30 @@ function Profile() {
   const [userLikes, setUserLikes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('posts');
+  
+  // NOVO: State za statistiku
+  const [userStats, setUserStats] = useState({
+    postsCount: 0,
+    likesReceived: 0,    // Lajkovi KOJE SU VAŠE OBJAVE DOBILE
+    userLikesCount: 0,   // Koliko ste VI lajkovali
+    repliesReceived: 0,  // Odgovori KOJE SU VAŠE OBJAVE DOBILE
+  });
+
+  // Formatiranje datuma
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('sr-RS', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -23,9 +46,9 @@ function Profile() {
     async function fetchUserData() {
       try {
         setLoading(true);
-        
-        // 1. Dobavi kompletnu korisnikove podatke
         const token = localStorage.getItem('token');
+        
+        // 1. Dobavi osnovne korisničke podatke
         const userRes = await fetch('http://localhost:8000/api/user', {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -36,22 +59,39 @@ function Profile() {
         
         if (userRes.ok) {
           const userData = await userRes.json();
-          console.log('User data:', userData); // Debug
+          console.log('User data:', userData);
           setUserData(userData);
         } else {
           // Ako detaljni API ne radi, koristi osnovne podatke iz context-a
           setUserData(user);
         }
         
-        // 2. Dobavi korisnikove objave
+        // 2. Dobavi korisnikove objave i IZRAČUNAJ STATISTIKU
         const postsRes = await fetch(`http://localhost:8000/api/posts?author_id=${user.id}`);
         if (postsRes.ok) {
           const postsData = await postsRes.json();
-          console.log('Posts data:', postsData); // Debug
-          setUserPosts(postsData.posts || []);
+          console.log('Posts data:', postsData);
+          const posts = postsData.posts || [];
+          setUserPosts(posts);
+          
+          // KLJUČNO: Izračunaj ukupan broj lajkova i odgovora na VAŠIM OBJAVAMA
+          let totalLikesReceived = 0;
+          let totalRepliesReceived = 0;
+          
+          posts.forEach(post => {
+            totalLikesReceived += post.likes_count || 0;
+            totalRepliesReceived += post.replies_count || 0;
+          });
+          
+          setUserStats(prev => ({
+            ...prev,
+            postsCount: posts.length,
+            likesReceived: totalLikesReceived,
+            repliesReceived: totalRepliesReceived,
+          }));
         }
         
-        // 3. Dobavi lajkovane objave
+        // 3. Dobavi lajkovane objave (koliko ste VI lajkovali)
         const likesRes = await fetch(`http://localhost:8000/api/likes?user_id=${user.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -61,10 +101,16 @@ function Profile() {
         
         if (likesRes.ok) {
           const likesData = await likesRes.json();
-          console.log('Likes data:', likesData); // Debug
+          console.log('Likes data:', likesData);
           // Ekstraktuj postove iz lajkova
           const likedPosts = likesData.likes?.map(like => like.post) || [];
           setUserLikes(likedPosts);
+          
+          // Ažuriraj statistiku sa brojem VAŠIH lajkova
+          setUserStats(prev => ({
+            ...prev,
+            userLikesCount: likedPosts.length,
+          }));
         }
         
       } catch (err) {
@@ -119,20 +165,15 @@ function Profile() {
 
   const getRoleBadge = (role) => {
     const roles = {
-      admin: { color: '#d32f2f', label: '👑 Administrator', icon: '👑' },
-      moderator: { color: '#7b1fa2', label: '🛡️ Moderator', icon: '🛡️' },
-      user: { color: '#1976d2', label: '👤 Korisnik', icon: '👤' }
+      admin: { color: '#d32f2f', label: ' Administrator', icon: '👑' },
+      moderator: { color: '#7b1fa2', label: ' Moderator', icon: '🛡️' },
+      user: { color: '#1976d2', label: ' Korisnik', icon: '👤' }
     };
     
     return roles[role] || roles.user;
   };
 
   const roleInfo = getRoleBadge(profileUser.role);
-
-  // Izračunaj broj lajkova - uzmi iz userData ili prebroji lajkovane postove
-  const postsCount = userPosts.length;
-  const likesCount = userLikes.length;
-  const repliesCount = 0; // Ovo možete izračunati ako imate podatke
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
@@ -142,7 +183,8 @@ function Profile() {
           onClick={() => navigate(-1)}
           style={{
             padding: '10px 20px',
-            background: '#f0f0f0',
+            background: '#6d82f0',
+            color: 'white',
             border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
@@ -233,19 +275,21 @@ function Profile() {
                 {roleInfo.icon} {roleInfo.label}
               </span>
               
-              <span style={{
-                background: profileUser.can_publish ? '#4caf50' : '#f44336',
-                color: 'white',
-                padding: '6px 15px',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                {profileUser.can_publish ? '✅ Može objavljivati' : '❌ Ne može objavljivati'}
-              </span>
+              {/*{profileUser.can_publish !== undefined && (
+                <span style={{
+                  background: profileUser.can_publish ? '#4caf50' : '#f44336',
+                  color: 'white',
+                  padding: '6px 15px',
+                  borderRadius: '20px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  {profileUser.can_publish ? '✅ Može objavljivati' : '❌ Ne može objavljivati'}
+                </span>
+              )}*/}
             </div>
 
             <div style={{ 
@@ -253,15 +297,18 @@ function Profile() {
               alignItems: 'center', 
               gap: '20px',
               fontSize: '0.95rem',
-              opacity: 0.9
+              opacity: 0.9,
+              flexWrap: 'wrap'
             }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 📧 {profileUser.email}
               </span>
               
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📅 Član od: {new Date().toLocaleDateString('sr-RS')}
-              </span>
+              {/*{profileUser.created_at && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📅 Član od: {formatDate(profileUser.created_at)}
+                </span>
+              )}*/}
             </div>
           </div>
         </div>
@@ -274,6 +321,7 @@ function Profile() {
         gap: '20px',
         marginBottom: '30px'
       }}>
+        {/* KARTICA 1: Objave */}
         <div style={{
           background: 'white',
           borderRadius: '12px',
@@ -283,11 +331,12 @@ function Profile() {
         }}>
           <div style={{ fontSize: '2rem', color: '#42a5f5', marginBottom: '10px' }}>📝</div>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
-            {postsCount}
+            {userStats.postsCount}
           </div>
-          <div style={{ color: '#666', fontSize: '0.9rem' }}>Objave</div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>Broj Objava</div>
         </div>
 
+        {/* KARTICA 2: Lajkovi primljeni (PROMENJENO) */}
         <div style={{
           background: 'white',
           borderRadius: '12px',
@@ -297,11 +346,12 @@ function Profile() {
         }}>
           <div style={{ fontSize: '2rem', color: '#ff7043', marginBottom: '10px' }}>❤️</div>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
-            {likesCount}
+            {userStats.likesReceived}
           </div>
-          <div style={{ color: '#666', fontSize: '0.9rem' }}>Lajkovi</div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>Dobijeni Lajkovi</div>
         </div>
 
+        {/* KARTICA 3: Odgovori primljeni (PROMENJENO) */}
         <div style={{
           background: 'white',
           borderRadius: '12px',
@@ -311,25 +361,25 @@ function Profile() {
         }}>
           <div style={{ fontSize: '2rem', color: '#ab47bc', marginBottom: '10px' }}>💬</div>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
-            {repliesCount}
+            {userStats.repliesReceived}
           </div>
-          <div style={{ color: '#666', fontSize: '0.9rem' }}>Odgovori</div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>Dobijeni Odgovori</div>
         </div>
 
-        <div style={{
+        {/* KARTICA 4: Vaši lajkovi (NOVO - opciono) */}
+        {/*<div style={{
           background: 'white',
           borderRadius: '12px',
           padding: '20px',
           boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '2rem', color: '#66bb6a', marginBottom: '10px' }}>🏆</div>
+          <div style={{ fontSize: '2rem', color: '#66bb6a', marginBottom: '10px' }}>👍</div>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0d47a1' }}>
-            {profileUser.role === 'admin' ? 'Admin' : 
-             profileUser.role === 'moderator' ? 'Moderator' : 'Član'}
+            {userStats.userLikesCount}
           </div>
-          <div style={{ color: '#666', fontSize: '0.9rem' }}>Status</div>
-        </div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>Vaših lajkova</div>
+        </div>*/}
       </div>
 
       {/* TAB NAVIGACIJA */}
@@ -353,7 +403,7 @@ function Profile() {
             borderRadius: '8px 8px 0 0',
           }}
         >
-          📝 Moje objave ({postsCount})
+          📝 Moje objave ({userStats.postsCount})
         </button>
         
         <button
@@ -370,7 +420,7 @@ function Profile() {
             borderRadius: '8px 8px 0 0',
           }}
         >
-          ❤️ Lajkovano ({likesCount})
+          ❤️ Lajkovane Objave ({userStats.userLikesCount})
         </button>
         
         <button
@@ -426,7 +476,7 @@ function Profile() {
             ) : (
               <div>
                 <h3 style={{ marginBottom: '20px', color: '#0d47a1' }}>
-                  Vaše objave ({userPosts.length})
+                  Vaše objave ({userStats.postsCount})
                 </h3>
                 <div>
                   {userPosts.map(post => (
@@ -456,7 +506,7 @@ function Profile() {
             ) : (
               <div>
                 <h3 style={{ marginBottom: '20px', color: '#0d47a1' }}>
-                  Lajkovane objave ({userLikes.length})
+                  Lajkovane objave ({userStats.userLikesCount})
                 </h3>
                 <div>
                   {userLikes.map(post => (
@@ -525,6 +575,22 @@ function Profile() {
                   {roleInfo.icon} {roleInfo.label}
                 </div>
               </div>
+
+              {profileUser.created_at && (
+                <div>
+                  <label style={{ display: 'block', color: '#666', fontSize: '0.9rem', marginBottom: '5px' }}>
+                    Datum registracije
+                  </label>
+                  <div style={{
+                    padding: '12px 15px',
+                    background: '#f5f5f5',
+                    borderRadius: '8px',
+                    fontSize: '1rem'
+                  }}>
+                    {formatDate(profileUser.created_at)}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label style={{ display: 'block', color: '#666', fontSize: '0.9rem', marginBottom: '5px' }}>

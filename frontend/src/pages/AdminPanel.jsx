@@ -286,7 +286,7 @@ function AdminPanel() {
           )}
         </div>
         <div style={styles.headerActions}>
-          <Button onClick={() => navigate('/')} variant="outline" style={{ marginRight: '10px' }}>
+          <Button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>
             ← Nazad na forum
           </Button>
           {/*<Button onClick={() => { fetchUsers(true); fetchStats(); }}>
@@ -390,8 +390,8 @@ function AdminPanel() {
                         <th>Email</th>
                         <th>Uloga</th>
                         <th>Dozvola objavljivanja</th>
-                        <th>Registrovano</th>
-                        <th>Objave</th>
+                        {/*<th>Registrovano</th>*/}
+                        {/*<th>Objave</th>*/}
                       </tr>
                     </thead>
                     <tbody>
@@ -433,12 +433,12 @@ function AdminPanel() {
                                 {userItem.can_publish ? '✅ Dozvoljeno' : '❌ Zabranjeno'}
                               </button>
                             </td>
-                            <td>
+                            {/*<td>
                               {formatDate(userItem.created_at)}
-                            </td>
-                            <td>
+                            </td>*/}
+                            {/*<td>
                               {userItem.posts_count || 0}
-                            </td>
+                            </td>*/}
                           </tr>
                         ))
                       )}
