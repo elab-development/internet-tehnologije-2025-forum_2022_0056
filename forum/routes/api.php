@@ -7,6 +7,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeatherController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -56,4 +57,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         ->only(['store', 'destroy']);
 
     Route::post('/users/{user}/can-publish/toggle', [UserController::class, 'toggleCanPublish']);
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Users management
+    Route::get('/admin/users', [AdminController::class, 'getUsers']);
+    Route::post('/admin/users/{user}/toggle-publish', [AdminController::class, 'togglePublish']);
+    Route::put('/admin/users/{user}/role', [AdminController::class, 'updateRole']);
+    Route::get('/admin/stats', [AdminController::class, 'getStats']);
 });

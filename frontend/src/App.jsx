@@ -9,6 +9,7 @@ import PostDetail from './pages/PostDetail';
 import CreatePost from './pages/CreatePost';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
           <Route path="/profile" element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          } />
+          <Route path="/admin" element={
+            <PrivateRoute adminOnly={true}>
+              <AdminPanel />
             </PrivateRoute>
           } />
         </Routes>
