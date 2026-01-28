@@ -168,9 +168,7 @@ function PostDetail() {
         <Button onClick={() => navigate(-1)} style={styles.backButton}>
           ← Nazad
         </Button>
-        <Link to={`/theme/${post.theme_id || post.theme?.id}`}>
-          <Button variant="outline">Vrati se na temu</Button>
-        </Link>
+        
       </div>
 
       {/* Glavna objava */}
