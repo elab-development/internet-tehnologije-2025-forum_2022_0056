@@ -115,6 +115,7 @@ class ThemeController extends Controller
     public function posts(Theme $theme)
     {
         $posts = $theme->posts()
+            ->whereNull('replied_to_id') // SAMO GLAVNE OBJAVE
             ->with(['author', 'theme'])
             ->withCount(['replies', 'likes'])
             ->latest()
@@ -124,5 +125,16 @@ class ThemeController extends Controller
             'theme' => new ThemeResource($theme->loadCount('posts')),
             'posts' => PostResource::collection($posts),
         ]);
+
+        /*$posts = $theme->posts()
+            ->with(['author', 'theme'])
+            ->withCount(['replies', 'likes'])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'theme' => new ThemeResource($theme->loadCount('posts')),
+            'posts' => PostResource::collection($posts),
+        ]);*/
     }
 }
