@@ -123,7 +123,7 @@ const styles = {
     maxWidth: "900px",
     margin: "0 auto",
     padding: "20px",
-    background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+    background: "linear-gradient(135deg, #b9d6f4 0%, #f1f5f9 100%)",
     minHeight: "100vh",
   },
 
@@ -243,7 +243,7 @@ const styles = {
 
   // Hover kartica - JEDNA BOJA ZA SVE
   themeCardHover: {
-    background: "linear-gradient(135deg, #ffffff 0%, #f1f8ff 100%)",
+    background: "linear-gradient(135deg, #f2e780f8 0%, #ffffff 100%)",
     borderRadius: "14px",
     padding: "25px",
     border: "1px solid #3498db",
