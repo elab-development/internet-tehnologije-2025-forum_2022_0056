@@ -85,7 +85,7 @@ function CategoryDetail() {
           }}>
             🏷️ {category.themes_count} tema
           </span>
-          {category.is_active && (
+          {/*{category.is_active && (
             <span style={{
               background: "#4caf50",
               padding: "5px 15px",
@@ -94,7 +94,7 @@ function CategoryDetail() {
             }}>
               ✅ Aktivna
             </span>
-          )}
+          )}*/}
         </div>
       </div>
 

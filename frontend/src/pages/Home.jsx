@@ -44,7 +44,7 @@ export default function Home() {
           <div className="category-header">
             <h2>{category.name}</h2>
             <span className="theme-count">
-              {category.themes_count} {category.themes_count === 1 ? 'tema' : 'tema'}
+              <p>Broj tema: {category.themes_count} {category.themes_count === 1 ? 'tema' : ''} </p>      
             </span>
           </div>
           
