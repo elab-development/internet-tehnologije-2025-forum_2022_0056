@@ -8,6 +8,7 @@ use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,4 +68,12 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/stats', [AdminController::class, 'getStats']);
 
     Route::get('/likes', [LikeController::class, 'index']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{category}', [CategoryController::class, 'show']);
+Route::get('/categories/{category}/themes', [CategoryController::class, 'themes']);

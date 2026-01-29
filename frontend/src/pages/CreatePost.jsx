@@ -1,9 +1,7 @@
-// pages/CreatePost.jsx
+// pages/CreatePost.jsx - AZURIRANO SA KATEGORIJAMA
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import Input from '../components/Input';
-import Button from '../components/Button';
 
 function CreatePost() {
   const navigate = useNavigate();
@@ -15,6 +13,8 @@ function CreatePost() {
     theme_id: '',
   });
   
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,11 +27,34 @@ function CreatePost() {
     }
   }, [user, navigate]);
 
-  // Učitaj teme
+  // Učitaj kategorije
   useEffect(() => {
-    async function fetchThemes() {
+    async function fetchCategories() {
       try {
-        const res = await fetch('http://localhost:8000/api/themes');
+        const res = await fetch('http://localhost:8000/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || []);
+        }
+      } catch (err) {
+        console.error('Greška pri učitavanju kategorija:', err);
+      }
+    }
+    
+    fetchCategories();
+  }, []);
+
+  // Učitaj teme kada se izabere kategorija
+  useEffect(() => {
+    async function fetchThemesByCategory() {
+      if (!selectedCategory) {
+        setThemes([]);
+        setFormData(prev => ({ ...prev, theme_id: '' }));
+        return;
+      }
+      
+      try {
+        const res = await fetch(`http://localhost:8000/api/categories/${selectedCategory}/themes`);
         if (res.ok) {
           const data = await res.json();
           setThemes(data.themes || []);
@@ -41,8 +64,8 @@ function CreatePost() {
       }
     }
     
-    fetchThemes();
-  }, []);
+    fetchThemesByCategory();
+  }, [selectedCategory]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +73,13 @@ function CreatePost() {
       ...prev,
       [name]: value
     }));
-    setError(null); // Clear error on change
+    setError(null);
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setFormData(prev => ({ ...prev, theme_id: '' })); // Resetuj temu kada promeniš kategoriju
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
@@ -64,6 +93,11 @@ function CreatePost() {
     
     if (!formData.content.trim()) {
       setError('Sadržaj je obavezan!');
+      return;
+    }
+    
+    if (!selectedCategory) {
+      setError('Izaberite kategoriju!');
       return;
     }
     
@@ -101,7 +135,6 @@ function CreatePost() {
 
       // Success!
       setSuccess(true);
-      console.log('Objava kreirana:', data);
       
       // Redirect na novu objavu nakon 2 sekunde
       setTimeout(() => {
@@ -121,7 +154,19 @@ function CreatePost() {
       <div style={{ textAlign: 'center', padding: '40px' }}>
         <h2>Pristup zabranjen</h2>
         <p>Morate biti prijavljeni da biste kreirali objavu.</p>
-        <Button onClick={() => navigate('/login')}>Prijavite se</Button>
+        <button 
+          onClick={() => navigate('/login')}
+          style={{
+            padding: '10px 20px',
+            background: '#42a5f5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+          }}
+        >
+          Prijavite se
+        </button>
       </div>
     );
   }
@@ -129,9 +174,20 @@ function CreatePost() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: '30px' }}>
-        <Button onClick={() => navigate(-1)} style={{ marginRight: '10px' }}>
+        <button 
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '10px 20px',
+            background: '#6d82f0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            marginRight: '10px'
+          }}
+        >
           ← Nazad
-        </Button>
+        </button>
         <h1 style={{ margin: '20px 0', color: '#0d47a1' }}>✏️ Kreiraj novu objavu</h1>
         <p style={{ color: '#666' }}>
           Podelite svoje iskustvo, postavite pitanje ili započnite diskusiju.
@@ -200,7 +256,7 @@ function CreatePost() {
                 color: '#37474f',
                 fontSize: '0.95rem'
             }}>
-                Naslov objave
+                ✏️ Naslov objave
             </label>
             <input
                 type="text"
@@ -223,7 +279,7 @@ function CreatePost() {
             />
             </div>
 
-          {/* Izbor teme */}
+          {/* Izbor kategorije */}
           <div style={{ marginBottom: '20px' }}>
             <label style={{
               display: 'block',
@@ -232,13 +288,12 @@ function CreatePost() {
               color: '#37474f',
               fontSize: '0.95rem'
             }}>
-              🏷️ Izaberite temu
+              📂 Izaberite kategoriju
             </label>
             <select
-              name="theme_id"
-              value={formData.theme_id}
-              onChange={handleChange}
-              disabled={loading || themes.length === 0}
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              disabled={loading || categories.length === 0}
               required
               style={{
                 width: '100%',
@@ -253,19 +308,65 @@ function CreatePost() {
               onFocus={(e) => e.target.style.border = '1px solid #42a5f5'}
               onBlur={(e) => e.target.style.border = '1px solid #b0bec5'}
             >
-              <option value="">-- Izaberite temu --</option>
-              {themes.map(theme => (
-                <option key={theme.id} value={theme.id}>
-                  {theme.name} {theme.description ? `(${theme.description})` : ''}
+              <option value="">-- Prvo izaberite kategoriju --</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} {cat.themes_count ? `(${cat.themes_count} tema)` : ''}
                 </option>
               ))}
             </select>
-            {themes.length === 0 && (
+            {categories.length === 0 && (
               <p style={{ color: '#999', fontSize: '0.9rem', marginTop: '5px' }}>
-                Učitavam teme...
+                Učitavam kategorije...
               </p>
             )}
           </div>
+
+          {/* Izbor teme (samo ako je izabrana kategorija) */}
+          {selectedCategory && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '500',
+                color: '#37474f',
+                fontSize: '0.95rem'
+              }}>
+                🏷️ Izaberite temu
+              </label>
+              <select
+                name="theme_id"
+                value={formData.theme_id}
+                onChange={handleChange}
+                disabled={loading || themes.length === 0}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  borderRadius: '8px',
+                  border: '1px solid #b0bec5',
+                  fontSize: '1rem',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  transition: 'border 0.2s ease',
+                }}
+                onFocus={(e) => e.target.style.border = '1px solid #42a5f5'}
+                onBlur={(e) => e.target.style.border = '1px solid #b0bec5'}
+              >
+                <option value="">-- Izaberite temu --</option>
+                {themes.map(theme => (
+                  <option key={theme.id} value={theme.id}>
+                    {theme.name}
+                  </option>
+                ))}
+              </select>
+              {themes.length === 0 && (
+                <p style={{ color: '#999', fontSize: '0.9rem', marginTop: '5px' }}>
+                  Učitavam teme za izabranu kategoriju...
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Sadržaj */}
           <div style={{ marginBottom: '25px' }}>
@@ -315,10 +416,31 @@ function CreatePost() {
 
           {/* Dugmad */}
           <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
-            <Button
+            <button
               type="submit"
-              disabled={loading}
-              style={{ flex: 1 }}
+              disabled={loading || !selectedCategory || !formData.theme_id}
+              style={{
+                flex: 1,
+                padding: '12px 20px',
+                background: loading || !selectedCategory || !formData.theme_id ? '#90caf9' : '#42a5f5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: loading || !selectedCategory || !formData.theme_id ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading && selectedCategory && formData.theme_id) {
+                  e.target.style.opacity = '0.9';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading && selectedCategory && formData.theme_id) {
+                  e.target.style.opacity = '1';
+                }
+              }}
             >
               {loading ? (
                 <>
@@ -331,16 +453,38 @@ function CreatePost() {
                   Objavi
                 </>
               )}
-            </Button>
+            </button>
             
-            <Button
+            <button
               type="button"
               onClick={() => navigate(-1)}
-              variant="outline"
               disabled={loading}
+              style={{
+                padding: '12px 20px',
+                background: 'transparent',
+                color: '#42a5f5',
+                border: '2px solid #42a5f5',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.background = '#42a5f5';
+                  e.target.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.target.style.background = 'transparent';
+                  e.target.style.color = '#42a5f5';
+                }
+              }}
             >
               Otkaži
-            </Button>
+            </button>
           </div>
 
           {/* Info box */}
@@ -360,7 +504,7 @@ function CreatePost() {
                 </p>
                 <ul style={{ margin: 0, paddingLeft: '20px' }}>
                   <li>Budite jasni i konkretni</li>
-                  <li>Koristite odgovarajuću temu</li>
+                  <li>Koristite odgovarajuću kategoriju i temu</li>
                   <li>Poštujte druge članove foruma</li>
                   <li>Proverite pravila foruma pre objavljivanja</li>
                 </ul>

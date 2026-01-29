@@ -23,6 +23,7 @@ function Navbar() {
       <div style={styles.menu}>
         {!user ? (
           <>
+            {/*<Link to="/" style={linkStyle}>Početna</Link>*/}
             <Link to="/login" style={styles.navLink}>
               <span style={styles.linkIcon}>🔑</span>
               Prijava

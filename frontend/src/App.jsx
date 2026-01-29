@@ -10,6 +10,7 @@ import CreatePost from './pages/CreatePost';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import AdminPanel from './pages/AdminPanel';
+import CategoryDetail from './pages/CategoryDetail';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/category/:categoryId" element={<CategoryDetail />} />
           <Route path="/theme/:themeId" element={<TopicDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
