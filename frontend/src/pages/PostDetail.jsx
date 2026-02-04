@@ -224,7 +224,7 @@ function PostDetail() {
             Odgovori ({post.replies_count || replies.length || 0})
           </Button>
 
-          <Button onClick={() => {
+          {/*<Button onClick={() => {
             if (navigator.share) {
               navigator.share({
                 title: post.title,
@@ -238,7 +238,8 @@ function PostDetail() {
           }}>
             <span style={styles.buttonIcon}>📤</span>
             Podeli
-          </Button>
+          </Button>*/}
+          
         </div>
       </div>
 

@@ -372,11 +372,11 @@ function AdminPanel() {
                         <option value="admin">Admin</option>
                       </select>
                       <Button type="submit">🔍 Pretraži</Button>
-                      {(searchTerm || roleFilter) && (
+                      {/*{(searchTerm || roleFilter) && (
                         <Button type="button" onClick={handleClearSearch} variant="outline">
                           ❌ Očisti
                         </Button>
-                      )}
+                      )*/}
                     </form>
                   </div>
                 </div>

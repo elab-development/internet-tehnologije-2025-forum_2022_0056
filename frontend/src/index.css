@@ -118,48 +118,6 @@ h1 {
   align-items: flex-start;
 }
 
-/* === NAVBAR === */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #42a5f5, #26a69a); /* plava u zelenu */
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-radius: 0 0 12px 12px;
-}
-
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.navbar-menu {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.navbar-link {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.navbar-link:hover {
-  color: #e0f7fa; /* svetla akcent boja */
-  transform: translateY(-2px);
-}
-
-.navbar-user {
-  font-weight: 600;
-}
-
 @keyframes floatUp {
   0% { 
     transform: translateX(-50%) translateY(0) scale(0.8); 

@@ -67,7 +67,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('/admin/users/{user}/role', [AdminController::class, 'updateRole']);
     Route::get('/admin/stats', [AdminController::class, 'getStats']);
 
-    Route::get('/likes', [LikeController::class, 'index']);
+    //Route::get('/likes', [LikeController::class, 'index']);
 
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);

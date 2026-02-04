@@ -102,7 +102,9 @@ class PostController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || $user->role !== 'user' || !$user->can_publish) {
+        $allowedRoles = ['user', 'moderator', 'admin'];
+
+        if (!$user || !in_array($user->role, $allowedRoles) || !$user->can_publish) {
             return response()->json([
                 'error' => 'Only users with publishing rights can create posts',
             ], 403);

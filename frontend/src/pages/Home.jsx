@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <div className="app-container">
       <h1>🏔️ Planinarski Forum</h1>
-      <p style={{ textAlign: 'center', color: '#666', marginBottom: '40px' }}>
+      <p style={{ textAlign: 'center', color: '#ffffff', marginBottom: '40px' }}>
         Dobrodošli na najveći planinarski forum! Izaberite kategoriju i počnite diskusiju.
       </p>
       
