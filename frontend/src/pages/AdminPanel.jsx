@@ -1,4 +1,3 @@
-// src/pages/AdminPanel.jsx - FINALNA VERZIJA
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';

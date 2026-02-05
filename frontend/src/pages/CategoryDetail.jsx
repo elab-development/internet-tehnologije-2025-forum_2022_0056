@@ -1,4 +1,3 @@
-// src/pages/CategoryDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Weather from "../components/Weather";

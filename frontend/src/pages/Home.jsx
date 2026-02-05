@@ -1,4 +1,3 @@
-// src/pages/Home.jsx - KOMPLETNO NOVO
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Weather from "../components/Weather";

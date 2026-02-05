@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx - SAMO ZAOBLJENE IVICE NA NAVBARU
 import { Link } from "react-router-dom";
 import React, { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";

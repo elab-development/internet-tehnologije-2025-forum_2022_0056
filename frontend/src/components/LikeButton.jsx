@@ -1,4 +1,3 @@
-// components/LikeButton.jsx - SA ANIMACIJAMA I EFEKTIMA
 import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../contexts/UserContext';
 

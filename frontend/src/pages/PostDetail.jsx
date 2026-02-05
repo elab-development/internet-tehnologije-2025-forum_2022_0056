@@ -1,4 +1,3 @@
-// pages/PostDetail.jsx - DODATA FUNKCIONALNOST ZA ODGOVARANJE
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
@@ -239,7 +238,7 @@ function PostDetail() {
             <span style={styles.buttonIcon}>📤</span>
             Podeli
           </Button>*/}
-          
+
         </div>
       </div>
 

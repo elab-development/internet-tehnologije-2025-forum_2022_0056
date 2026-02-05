@@ -1,4 +1,3 @@
-// components/Weather.jsx - KOMPAKTNA VERZIJA
 import { useEffect, useState } from "react";
 
 function Weather({ themeId }) {
