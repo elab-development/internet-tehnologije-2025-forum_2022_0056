@@ -8,19 +8,14 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // ANIMACIJE
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   const [showBurstAnimation, setShowBurstAnimation] = useState(false);
-  const [pulse, setPulse] = useState(false);
 
-  // Pulse efekat kada se učita sa lajkom
+  // Ažuriraj kada se promene props
   useEffect(() => {
-    if (isInitiallyLiked) {
-      setPulse(true);
-      const timer = setTimeout(() => setPulse(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isInitiallyLiked]);
+    setLikes(initialLikes);
+    setIsLiked(isInitiallyLiked);
+  }, [initialLikes, isInitiallyLiked]);
 
   const handleLikeClick = async () => {
     if (!user) {
@@ -35,7 +30,7 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
 
     try {
       if (isLiked) {
-        // UNLIKE - DELETE request
+        // UNLIKE
         const response = await fetch(`http://localhost:8000/api/posts/${postId}/like`, {
           method: 'DELETE',
           headers: {
@@ -51,12 +46,14 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
           throw new Error(errorData.error || 'Greška pri unlike-ovanju');
         }
 
-        setLikes(prev => prev - 1);
+        const result = await response.json();
+        setLikes(result.likes_count);
         setIsLiked(false);
-        if (onLikeChange) onLikeChange(false, likes - 1);
+        
+        if (onLikeChange) onLikeChange(false, result.likes_count);
         
       } else {
-        // LIKE - POST request
+        // LIKE
         const response = await fetch(`http://localhost:8000/api/posts/${postId}/like`, {
           method: 'POST',
           headers: {
@@ -72,15 +69,17 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
           throw new Error(errorData.error || 'Greška pri lajkovanju');
         }
 
-        // ANIMACIJE PRI LIKE-OVANJU
+        const result = await response.json();
+        
+        // ANIMACIJE
         setShowHeartAnimation(true);
         setShowBurstAnimation(true);
         
-        setLikes(prev => prev + 1);
+        setLikes(result.likes_count);
         setIsLiked(true);
-        if (onLikeChange) onLikeChange(true, likes + 1);
         
-        // Zaustavi animacije nakon vremena
+        if (onLikeChange) onLikeChange(true, result.likes_count);
+        
         setTimeout(() => setShowHeartAnimation(false), 600);
         setTimeout(() => setShowBurstAnimation(false), 300);
       }
@@ -151,41 +150,11 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
           minWidth: '100px',
           position: 'relative',
           overflow: 'hidden',
-          transform: pulse ? 'scale(1.05)' : 'scale(1)',
           boxShadow: isLiked 
             ? '0 6px 20px rgba(255, 68, 68, 0.4)' 
             : '0 4px 12px rgba(0,0,0,0.1)',
         }}
-        onMouseEnter={(e) => {
-          if (user && !loading) {
-            e.target.style.transform = 'translateY(-3px) scale(1.05)';
-            e.target.style.boxShadow = isLiked 
-              ? '0 10px 25px rgba(255, 68, 68, 0.5)' 
-              : '0 8px 20px rgba(0,0,0,0.15)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (user && !loading) {
-            e.target.style.transform = pulse ? 'scale(1.05)' : 'scale(1)';
-            e.target.style.boxShadow = isLiked 
-              ? '0 6px 20px rgba(255, 68, 68, 0.4)' 
-              : '0 4px 12px rgba(0,0,0,0.1)';
-          }
-        }}
       >
-        {/* RIPPLE EFFECT */}
-        <span style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: '5px',
-          height: '5px',
-          background: 'rgba(255, 255, 255, 0.6)',
-          borderRadius: '50%',
-          transform: 'translate(-50%, -50%)',
-          animation: isLiked && !loading ? 'ripple 1s ease-out' : 'none',
-        }} />
-
         <span style={{ 
           fontSize: '1.3rem',
           transition: 'transform 0.3s ease',
@@ -199,8 +168,6 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
           textAlign: 'center',
           fontSize: '1.1rem',
           fontWeight: '600',
-          transition: 'all 0.3s ease',
-          textShadow: isLiked ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
         }}>
           {likes}
         </span>
@@ -215,62 +182,6 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
           </span>
         )}
       </button>
-      
-      {/* TOOLTIP ZA NEPRIJAVLJENE */}
-      {!user && !loading && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#333',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '0.75rem',
-          marginTop: '8px',
-          whiteSpace: 'nowrap',
-          zIndex: 1000,
-          opacity: 0,
-          animation: 'fadeIn 0.3s ease forwards 0.5s',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-          pointerEvents: 'none',
-        }}>
-          Prijavi se da lajkuješ
-          <div style={{
-            position: 'absolute',
-            top: '-6px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '0',
-            height: '0',
-            borderLeft: '6px solid transparent',
-            borderRight: '6px solid transparent',
-            borderBottom: '6px solid #333',
-          }} />
-        </div>
-      )}
-      
-      {/* ERROR MESSAGE */}
-      {error && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          background: 'linear-gradient(135deg, #ff4444, #c62828)',
-          color: 'white',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          fontSize: '0.8rem',
-          marginTop: '8px',
-          zIndex: 10,
-          animation: 'slideDown 0.3s ease',
-          boxShadow: '0 4px 12px rgba(198, 40, 40, 0.3)',
-        }}>
-          ⚠️ {error}
-        </div>
-      )}
     </div>
   );
 }

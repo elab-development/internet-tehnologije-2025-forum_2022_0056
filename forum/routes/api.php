@@ -77,3 +77,5 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 Route::get('/categories/{category}/themes', [CategoryController::class, 'themes']);
+
+Route::get('/posts/{post}/check-like', [LikeController::class, 'checkLike']);

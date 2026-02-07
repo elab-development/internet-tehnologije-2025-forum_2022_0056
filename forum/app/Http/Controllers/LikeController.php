@@ -100,4 +100,23 @@ class LikeController extends Controller
             'replies_count' => $post->replies_count,
         ]);
     }
+
+    public function checkLike(Post $post)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $isLiked = Like::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->exists();
+
+        return response()->json([
+            'post_id' => $post->id,
+            'is_liked' => $isLiked,
+            'likes_count' => $post->likes()->count(),
+        ]);
+    }
+
 }

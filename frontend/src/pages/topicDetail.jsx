@@ -1,14 +1,19 @@
+// TopicDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Weather from "../components/Weather";
 import PostCard from "../components/PostCard";
+import { useLikes } from "../hooks/useLikes"; // DODAJ OVO
 
 function TopicDetail() {
-  const { themeId } = useParams(); // dohvat ID teme iz URL-a
+  const { themeId } = useParams();
   const [theme, setTheme] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // DODAJ OVO: Koristi hook za lajkove
+  const { userLikes, loading: likesLoading } = useLikes();
 
   useEffect(() => {
     async function fetchThemeAndPosts() {
@@ -37,7 +42,7 @@ function TopicDetail() {
     fetchThemeAndPosts();
   }, [themeId]);
 
-  if (loading) return <h2>Loading theme details...</h2>;
+  if (loading || likesLoading) return <h2>Loading theme details...</h2>;
   if (error) return <h2>Error: {error}</h2>;
   if (!theme) return <h2>Theme not found</h2>;
 
@@ -52,36 +57,43 @@ function TopicDetail() {
       {posts.length === 0 && <p>Još nema objava.</p>}
 
       <div style={{ marginTop: '30px' }}>
-  <h2 style={{ color: '#0d47a1', marginBottom: '20px' }}>
-    📝 Objave u ovoj temi ({posts.length})
-  </h2>
-  
-  {posts.length === 0 ? (
-    <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '10px' }}>
-      <p style={{ fontSize: '1.1rem', color: '#666' }}>Još nema objava u ovoj temi.</p>
-      <button 
-        onClick={() => alert('Prijavite se da biste objavili!')}
-        style={{
-          padding: '10px 20px',
-          background: '#42a5f5',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          marginTop: '10px'
-        }}
-      >
-        Budite prvi koji će objaviti!
-      </button>
-    </div>
-  ) : (
-    <div>
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
-  )}
-</div>
+        <h2 style={{ color: '#0d47a1', marginBottom: '20px' }}>
+          📝 Objave u ovoj temi ({posts.length})
+        </h2>
+        
+        {posts.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '10px' }}>
+            <p style={{ fontSize: '1.1rem', color: '#666' }}>Još nema objava u ovoj temi.</p>
+            <button 
+              onClick={() => alert('Prijavite se da biste objavili!')}
+              style={{
+                padding: '10px 20px',
+                background: '#42a5f5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                marginTop: '10px'
+              }}
+            >
+              Budite prvi koji će objaviti!
+            </button>
+          </div>
+        ) : (
+          <div>
+            {posts.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={{
+                  ...post,
+                  // DODAJ OVO: Proveri da li je post lajkovan
+                  is_liked_by_current_user: userLikes[post.id] || false
+                }} 
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

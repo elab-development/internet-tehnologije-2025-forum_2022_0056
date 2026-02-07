@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import Button from '../components/Button';
 import LikeButton from '../components/LikeButton';
-import Input from '../components/Input';
+import { useLikes } from '../hooks/useLikes'; // DODAJ OVO IMPORT
 
 function PostDetail() {
   const { postId } = useParams();
@@ -16,6 +16,9 @@ function PostDetail() {
   const [replying, setReplying] = useState(false);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  
+  // DODAJ OVO: Koristi useLikes hook
+  const { userLikes, loading: likesLoading, refetch: refetchLikes } = useLikes();
 
   // Osveži podatke o objavi
   const refreshPost = async () => {
@@ -60,7 +63,6 @@ function PostDetail() {
     fetchPostAndReplies();
   }, [postId]);
 
-  // Funkcija za slanje odgovora
   const handleSubmitReply = async (e) => {
     e.preventDefault();
     
@@ -126,18 +128,20 @@ function PostDetail() {
   };
 
   const handleLikeChange = (isLiked, newLikesCount) => {
-    refreshPost();
+    // Osveži lajkove kada se promeni
+    refetchLikes();
     
+    // Ažuriraj post
     if (post) {
       setPost({
         ...post,
-        likes_count: newLikesCount,
-        likes: isLiked ? [{ id: Date.now() }] : []
+        likes_count: newLikesCount
       });
     }
   };
 
-  if (loading) return (
+  // Dodaj loading za lajkove
+  if (loading || likesLoading) return (
     <div style={styles.loadingContainer}>
       <div style={styles.loadingSpinner}></div>
       <h2>Učitavanje objave...</h2>
@@ -167,7 +171,6 @@ function PostDetail() {
         <Button onClick={() => navigate(-1)} style={styles.backButton}>
           ← Nazad
         </Button>
-        
       </div>
 
       {/* Glavna objava */}
@@ -206,12 +209,12 @@ function PostDetail() {
           {post.content}
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons - AŽURIRANO */}
         <div style={styles.actionButtons}>
           <LikeButton 
             postId={post.id} 
             initialLikes={post.likes_count || 0}
-            isInitiallyLiked={post.likes && post.likes.length > 0}
+            isInitiallyLiked={userLikes[post.id] || false} // KORISTI userLikes
             onLikeChange={handleLikeChange}
           />
 
@@ -222,23 +225,6 @@ function PostDetail() {
             <span style={styles.buttonIcon}>💬</span>
             Odgovori ({post.replies_count || replies.length || 0})
           </Button>
-
-          {/*<Button onClick={() => {
-            if (navigator.share) {
-              navigator.share({
-                title: post.title,
-                text: post.content.substring(0, 100) + '...',
-                url: window.location.href,
-              });
-            } else {
-              navigator.clipboard.writeText(window.location.href);
-              alert('Link kopiran u clipboard!');
-            }
-          }}>
-            <span style={styles.buttonIcon}>📤</span>
-            Podeli
-          </Button>*/}
-
         </div>
       </div>
 
@@ -365,7 +351,8 @@ function PostDetail() {
                   <LikeButton 
                     postId={reply.id}
                     initialLikes={reply.likes_count || 0}
-                    isInitiallyLiked={reply.likes && reply.likes.length > 0}
+                    isInitiallyLiked={userLikes[reply.id] || false} // KORISTI userLikes
+                    onLikeChange={() => refetchLikes()} // Osveži lajkove kada se promeni
                     small={true}
                   />
                 </div>

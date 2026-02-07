@@ -85,6 +85,7 @@ function AdminPanel() {
       
       setUsers(data.users || []);
       
+      
       setPagination({
         currentPage: data.meta?.current_page || 1,
         perPage: data.meta?.per_page || 10,

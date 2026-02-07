@@ -85,7 +85,7 @@ function PostCard({ post }) {
         <LikeButton 
           postId={post.id} 
           initialLikes={post.likes_count || 0}
-          isInitiallyLiked={post.likes && post.likes.length > 0}
+          isInitiallyLiked={post.is_liked_by_current_user || false}
           onLikeChange={handleLikeChange}
         />
       </div>
