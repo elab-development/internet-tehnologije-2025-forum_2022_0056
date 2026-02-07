@@ -411,3 +411,36 @@ select:focus {
     align-self: flex-start;
   }
 }
+
+/* === TOPIC DETAIL PAGE === */
+
+/* Glavni naslov teme */
+.topic-detail-header {
+  background: linear-gradient(135deg, #ebe9ba 0%, #b7e3ec 100%);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 30px rgba(66, 165, 245, 0.1);
+  border-left: 6px solid #42a5f5;
+}
+
+/* Naziv teme u detail stranici */
+.topic-detail-title {
+  color: #1a237e;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #1a237e 0%, #42a5f5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Opis teme u detail stranici */
+.topic-detail-description {
+  color: #546e7a;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  margin: 0;
+  text-align: center;
+}

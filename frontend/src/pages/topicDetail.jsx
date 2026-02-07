@@ -48,12 +48,23 @@ function TopicDetail() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>{theme.name}</h1>
-      <p>{theme.description}</p>
 
-      <Weather themeId={theme.id} />
+      {/*<h1>{theme.name}</h1>
+      <p>{theme.description}</p>*/}
+      
+      <div className="topic-detail-header">
+        <h1 className="topic-detail-title">{theme.name}</h1>
+        <p className="topic-detail-description">{theme.description}</p>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          marginTop: '20px'
+        }}>
+          <Weather themeId={theme.id} />
+        </div>
+      </div>
 
-      <h2>Objave u ovoj temi</h2>
+      {/*<h2>Objave u ovoj temi</h2>*/}
       {posts.length === 0 && <p>Još nema objava.</p>}
 
       <div style={{ marginTop: '30px' }}>
