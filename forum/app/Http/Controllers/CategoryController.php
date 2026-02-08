@@ -10,9 +10,7 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    /**
-     * Prikaz svih kategorija
-     */
+    // Prikaz svih kategorija
     public function index()
     {
         try {
@@ -37,9 +35,7 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Prikaz jedne kategorije
-     */
+    // Prikaz jedne kategorije
     public function show(Category $category)
     {
         try {
@@ -58,9 +54,7 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Kreiranje nove kategorije (samo admin)
-     */
+    // Kreiranje nove kategorije (samo admin)
     public function store(Request $request)
     {
         try {
@@ -156,9 +150,7 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Brisanje kategorije (samo admin)
-     */
+    // Brisanje kategorije (samo admin)
     public function destroy(Category $category)
     {
         try {
@@ -194,9 +186,7 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Prikaz tema u kategoriji
-     */
+    //Prikaz tema u kategoriji
     public function themes(Category $category)
     {
         try {

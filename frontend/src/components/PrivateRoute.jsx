@@ -10,7 +10,7 @@ export default function PrivateRoute({ children, adminOnly = false }) {
     return user && user.role === 'admin' ? children : <Navigate to="/" />;
   }
 
-  // Ako user postoji → prikazi decu (komponentu koju ruta renderuje)
-  // Ako user ne postoji → preusmeri na /login
+  // Ako user postoji - prikazi decu (komponentu koju ruta renderuje)
+  // Ako user ne postoji - preusmeri na /login
   return user ? children : <Navigate to="/login" />;
 }

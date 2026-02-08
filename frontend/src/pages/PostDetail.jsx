@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import Button from '../components/Button';
 import LikeButton from '../components/LikeButton';
-import { useLikes } from '../hooks/useLikes'; // DODAJ OVO IMPORT
+import { useLikes } from '../hooks/useLikes'; 
 
 function PostDetail() {
   const { postId } = useParams();
@@ -17,10 +17,10 @@ function PostDetail() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   
-  // DODAJ OVO: Koristi useLikes hook
+  //Koriscenje useLikes hook
   const { userLikes, loading: likesLoading, refetch: refetchLikes } = useLikes();
 
-  // Osveži podatke o objavi
+  // Osvežacanje podataka o objavi
   const refreshPost = async () => {
     try {
       const res = await fetch(`http://localhost:8000/api/posts/${postId}`);
@@ -209,12 +209,12 @@ function PostDetail() {
           {post.content}
         </div>
 
-        {/* Action buttons - AŽURIRANO */}
+        {/* Action buttons */}
         <div style={styles.actionButtons}>
           <LikeButton 
             postId={post.id} 
             initialLikes={post.likes_count || 0}
-            isInitiallyLiked={userLikes[post.id] || false} // KORISTI userLikes
+            isInitiallyLiked={userLikes[post.id] || false}
             onLikeChange={handleLikeChange}
           />
 
@@ -351,7 +351,7 @@ function PostDetail() {
                   <LikeButton 
                     postId={reply.id}
                     initialLikes={reply.likes_count || 0}
-                    isInitiallyLiked={userLikes[reply.id] || false} // KORISTI userLikes
+                    isInitiallyLiked={userLikes[reply.id] || false} // Koriscenje userLikes
                     onLikeChange={() => refetchLikes()} // Osveži lajkove kada se promeni
                     small={true}
                   />

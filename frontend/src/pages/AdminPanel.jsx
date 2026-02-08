@@ -819,7 +819,6 @@ const styles = {
   },
 };
 
-// Dodajte CSS animaciju
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `
   @keyframes spin {

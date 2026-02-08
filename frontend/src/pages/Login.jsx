@@ -16,12 +16,12 @@ function Login() {
     setError(null);
 
     try {
-      // 1️⃣ UZMI CSRF COOKIE
+      //UZMI CSRF COOKIE
       await fetch("http://localhost:8000/sanctum/csrf-cookie", {
         credentials: "include",
       });
 
-      // 2️⃣ POŠALJI LOGIN PODATKE
+      //POŠALJI LOGIN PODATKE
       const res = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: {
@@ -40,7 +40,7 @@ function Login() {
       const data = await res.json();
       localStorage.setItem("token", data.access_token);
       
-      // 3️⃣ DOH VATI KORISNIČKE PODATKE
+      //DOHVATI KORISNIČKE PODATKE
       const userRes = await fetch("http://localhost:8000/api/user", {
         headers: { 
           "Authorization": `Bearer ${data.access_token}`,
@@ -56,7 +56,7 @@ function Login() {
       const userData = await userRes.json();
       setUser(userData);
       
-      // 4️⃣ PREUSMERI NA POČETNU
+      //PREUSMERI NA POČETNU
       navigate("/");
       
     } catch (err) {

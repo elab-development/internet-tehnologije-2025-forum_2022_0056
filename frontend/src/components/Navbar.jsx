@@ -81,7 +81,7 @@ function Navbar() {
   );
 }
 
-// STILOVI - SAMO NAVBAR ZAOBLJEN
+// STILOVI 
 const styles = {
   navbar: {
     display: "flex",
@@ -92,16 +92,14 @@ const styles = {
     color: "white",
     boxShadow: "0 3px 15px rgba(0, 0, 0, 0.2)",
     position: "sticky",
-    top: "10px", /* Dodaj margin od vrha */
+    top: "10px", 
     zIndex: 100,
     borderBottom: "3px solid #3498db",
     minHeight: "65px",
-    // ZAOBLJENE IVICE - OVO JE PROMENA
-    borderRadius: "16px", // Povećano za mekši izgled
+    borderRadius: "16px", 
     margin: "10px 20px 0 20px", // Da ne bude uz sam vrh
   },
 
-  // Ostali stilovi ostaju isti...
   logoSection: {
     display: "flex",
     alignItems: "center",
@@ -198,7 +196,7 @@ const styles = {
     color: "#ecf0f1",
     textDecoration: "none",
     padding: "8px 16px",
-    borderRadius: "8px", // Dugmad ostaju zaobljena
+    borderRadius: "8px", 
     fontWeight: "500",
     fontSize: "0.95rem",
     display: "flex",
@@ -216,7 +214,7 @@ const styles = {
     color: "white",
     textDecoration: "none",
     padding: "8px 18px",
-    borderRadius: "8px", // Dugmad ostaju zaobljena
+    borderRadius: "8px", 
     fontWeight: "600",
     fontSize: "0.95rem",
     display: "flex",
@@ -243,7 +241,7 @@ const styles = {
       color: "white",
       textDecoration: "none",
       padding: "8px 16px",
-      borderRadius: "8px", // Dugmad ostaju zaobljena
+      borderRadius: "8px", 
       fontSize: "0.9rem",
       fontWeight: "500",
       display: "flex",
@@ -262,7 +260,7 @@ const styles = {
       color: "white",
       textDecoration: "none",
       padding: "8px 14px",
-      borderRadius: "8px", // Dugmad ostaju zaobljena
+      borderRadius: "8px", 
       fontSize: "0.9rem",
       fontWeight: "500",
       display: "flex",
@@ -279,7 +277,7 @@ const styles = {
       color: "#ecf0f1",
       textDecoration: "none",
       padding: "8px 14px",
-      borderRadius: "8px", // Dugmad ostaju zaobljena
+      borderRadius: "8px", 
       fontSize: "0.9rem",
       fontWeight: "500",
       border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -300,7 +298,7 @@ const styles = {
     color: "white",
     border: "none",
     padding: "8px 16px",
-    borderRadius: "8px", // Dugmad ostaju zaobljena
+    borderRadius: "8px", 
     fontSize: "0.9rem",
     fontWeight: "500",
     cursor: "pointer",

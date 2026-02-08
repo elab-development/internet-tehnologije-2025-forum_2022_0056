@@ -1,7 +1,6 @@
 import React from "react";
 
 function Button({ children, onClick, type = "button", variant = "primary" }) {
-  // Definiši stilove za različite varijante
   const variantStyles = {
     primary: {
       backgroundColor: "#42a5f5",

@@ -72,7 +72,7 @@ function PostCard({ post }) {
         </div>
       </div>
 
-      {/* Like dugme - posebno da ne proklikava na detalje */}
+      {/* Like dugme - posebno da ne ulazi na detalje */}
       <div 
         style={{ 
           position: "absolute", 

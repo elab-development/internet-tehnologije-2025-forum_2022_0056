@@ -1,9 +1,8 @@
-// TopicDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Weather from "../components/Weather";
 import PostCard from "../components/PostCard";
-import { useLikes } from "../hooks/useLikes"; // DODAJ OVO
+import { useLikes } from "../hooks/useLikes";
 
 function TopicDetail() {
   const { themeId } = useParams();
@@ -12,7 +11,7 @@ function TopicDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // DODAJ OVO: Koristi hook za lajkove
+  //Koriscenje hook-a za lajkove
   const { userLikes, loading: likesLoading } = useLikes();
 
   useEffect(() => {
@@ -97,7 +96,7 @@ function TopicDetail() {
                 key={post.id} 
                 post={{
                   ...post,
-                  // DODAJ OVO: Proveri da li je post lajkovan
+                   //Provera da li je post lajkovan
                   is_liked_by_current_user: userLikes[post.id] || false
                 }} 
               />

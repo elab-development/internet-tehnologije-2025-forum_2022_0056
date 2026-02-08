@@ -13,11 +13,11 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('posts');
   
-  // NOVO: State za statistiku
+  //State za statistiku
   const [userStats, setUserStats] = useState({
     postsCount: 0,
     likesReceived: 0,    // Lajkovi KOJE SU VAŠE OBJAVE DOBILE
-    userLikesCount: 0,   // Koliko ste VI lajkovali
+    userLikesCount: 0,   // Koliko ste VI objava lajkovali
     repliesReceived: 0,  // Odgovori KOJE SU VAŠE OBJAVE DOBILE
   });
 
@@ -48,7 +48,7 @@ function Profile() {
         setLoading(true);
         const token = localStorage.getItem('token');
         
-        // 1. Dobavi osnovne korisničke podatke
+        //Dobavljanje osnovnih korisničkih podataka
         const userRes = await fetch('http://localhost:8000/api/user', {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -66,7 +66,7 @@ function Profile() {
           setUserData(user);
         }
         
-        // 2. Dobavi korisnikove objave i IZRAČUNAJ STATISTIKU
+        //Dobavljanje korisnikove objave i IZRAČUNAVANJE STATISTIKE
         const postsRes = await fetch(`http://localhost:8000/api/posts?author_id=${user.id}`);
         if (postsRes.ok) {
           const postsData = await postsRes.json();
@@ -74,7 +74,7 @@ function Profile() {
           const posts = postsData.posts || [];
           setUserPosts(posts);
           
-          // KLJUČNO: Izračunaj ukupan broj lajkova i odgovora na VAŠIM OBJAVAMA
+          //Racunanje ukupnog broja lajkova i odgovora na OBJAVAMA
           let totalLikesReceived = 0;
           let totalRepliesReceived = 0;
           
@@ -91,7 +91,7 @@ function Profile() {
           }));
         }
         
-        // 3. Dobavi lajkovane objave (koliko ste VI lajkovali)
+        //Dobavljanje lajkovanih objava (koliko je korisnik lajkovao)
         const likesRes = await fetch(`http://localhost:8000/api/likes?user_id=${user.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -106,7 +106,7 @@ function Profile() {
           const likedPosts = likesData.likes?.map(like => like.post) || [];
           setUserLikes(likedPosts);
           
-          // Ažuriraj statistiku sa brojem VAŠIH lajkova
+          // Ažuriraj statistiku sa brojem korisnikovih lajkova
           setUserStats(prev => ({
             ...prev,
             userLikesCount: likedPosts.length,

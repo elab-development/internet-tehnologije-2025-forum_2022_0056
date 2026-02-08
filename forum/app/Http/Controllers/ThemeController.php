@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ThemeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Display a listing of the resource.
     public function index()
     {
         $themes = Theme::withCount('posts')->orderBy('name')->get();
@@ -26,17 +24,7 @@ class ThemeController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a newly created resource in storage.
     public function store(Request $request)
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
@@ -56,9 +44,7 @@ class ThemeController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Display the specified resource.
     public function show(Theme $theme)
     {
         $theme->loadCount('posts');
@@ -75,10 +61,16 @@ class ThemeController extends Controller
     {
         //
     }
-
+    
     /**
-     * Update the specified resource in storage.
+     * Show the form for creating a new resource.
      */
+    public function create()
+    {
+        //
+    }
+
+    // Update the specified resource in storage.
     public function update(Request $request, Theme $theme)
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
@@ -98,9 +90,7 @@ class ThemeController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    //Remove the specified resource from storage.
     public function destroy(Theme $theme)
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {

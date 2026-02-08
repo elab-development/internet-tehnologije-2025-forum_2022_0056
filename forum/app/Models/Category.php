@@ -9,10 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Category extends Model
 {
     use HasFactory;
-
-    /**
-     * Kolone koje se mogu masovno dodeljivati
-     */
+    
+    //Kolone koje se mogu masovno dodeljivati
     protected $fillable = [
         'name',
         'slug',
@@ -21,49 +19,37 @@ class Category extends Model
         'is_active',
     ];
 
-    /**
-     * Tipovi podataka za određene kolone
-     */
+    //Tipovi podataka za određene kolone
     protected $casts = [
         'is_active' => 'boolean',
         'order' => 'integer',
     ];
 
-    /**
-     * Relacija: Jedna kategorija ima više tema
-     */
+    //Relacija: Jedna kategorija ima više tema
     public function themes(): HasMany
     {
         return $this->hasMany(Theme::class);
     }
 
-    /**
-     * Relacija: Kategorija ima objave preko tema
-     */
+    //Relacija: Kategorija ima objave preko tema
     public function posts()
     {
         return $this->hasManyThrough(Post::class, Theme::class);
     }
 
-    /**
-     * Scope za aktivne kategorije
-     */
+    //Scope za aktivne kategorije
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope za sortiranje po order i name
-     */
+    //Scope za sortiranje po order i name
     public function scopeOrdered($query)
     {
         return $query->orderBy('order')->orderBy('name');
     }
 
-    /**
-     * Automatsko generisanje sluga kada se kreira kategorija
-     */
+    //Automatsko generisanje sluga kada se kreira kategorija
     protected static function boot()
     {
         parent::boot();
