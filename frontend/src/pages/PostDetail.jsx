@@ -61,7 +61,7 @@ function PostDetail() {
     }
 
     fetchPostAndReplies();
-  }, [postId]);
+  }, [postId, userLikes]);
 
   const handleSubmitReply = async (e) => {
     e.preventDefault();
@@ -349,11 +349,10 @@ function PostDetail() {
                 
                 <div style={styles.replyActions}>
                   <LikeButton 
-                    postId={reply.id}
+                    postId={reply.id} 
                     initialLikes={reply.likes_count || 0}
-                    isInitiallyLiked={userLikes[reply.id] || false} // Koriscenje userLikes
-                    onLikeChange={() => refetchLikes()} // Osveži lajkove kada se promeni
-                    small={true}
+                    isInitiallyLiked={userLikes[reply.id] || false}
+                    onLikeChange={handleLikeChange}
                   />
                 </div>
               </div>

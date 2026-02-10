@@ -219,7 +219,8 @@ function Profile() {
         }} />
         
         <div style={{
-          position: 'absolute',
+        
+        position: 'absolute',
           bottom: '-30px',
           left: '-30px',
           width: '150px',

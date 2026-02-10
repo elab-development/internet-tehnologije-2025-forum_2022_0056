@@ -176,6 +176,7 @@ class PostController extends Controller
             'parent',
         ])->loadCount(['replies', 'likes']);
 
+        // Ovo se izvršava SAMO za prijavljene korisnike
         if (Auth::check()) {
             $post->load(['likes' => function ($q) {
                 $q->where('user_id', Auth::id());

@@ -209,7 +209,7 @@ function AdminPanel() {
   };
 
   // Formatiranje datuma
-  const formatDate = (dateString) => {
+  /*const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     
     try {
@@ -222,7 +222,7 @@ function AdminPanel() {
     } catch {
       return 'N/A';
     }
-  };
+  };*/
 
   // Pretraga
   const handleSearch = (e) => {
@@ -231,11 +231,11 @@ function AdminPanel() {
   };
 
   // Brisanje pretrage
-  const handleClearSearch = () => {
+  /*const handleClearSearch = () => {
     setSearchTerm('');
     setRoleFilter('');
     fetchUsers(true);
-  };
+  };*/
 
   // Promena stranice
   const handlePageChange = (newPage) => {
@@ -481,7 +481,7 @@ function AdminPanel() {
                   <div style={styles.contentCard}>
                     <h3>🏷️ Teme</h3>
                     <p>Kreiraj, izmeni ili obriši teme foruma</p>
-                    <Button onClick={() => alert('Funkcionalnost u izradi - će biti implementirano kasnije')}>
+                    <Button onClick={() => alert('Funkcionalnost u izradi')}>
                       Upravljaj temama
                     </Button>
                   </div>
@@ -489,7 +489,7 @@ function AdminPanel() {
                   <div style={styles.contentCard}>
                     <h3>📄 Objave</h3>
                     <p>Moderiši, pinuj ili obriši objave</p>
-                    <Button onClick={() => alert('Funkcionalnost u izradi - će biti implementirano kasnije')}>
+                    <Button onClick={() => alert('Funkcionalnost u izradi')}>
                       Moderiraj objave
                     </Button>
                   </div>
@@ -497,7 +497,7 @@ function AdminPanel() {
                   <div style={styles.contentCard}>
                     <h3>💬 Komentari</h3>
                     <p>Pregledaj i upravljaj komentarima</p>
-                    <Button onClick={() => alert('Funkcionalnost u izradi - će biti implementirano kasnije')}>
+                    <Button onClick={() => alert('Funkcionalnost u izradi')}>
                       Upravljaj komentarima
                     </Button>
                   </div>

@@ -310,7 +310,7 @@ function CreatePost() {
               <option value="">-- Prvo izaberite kategoriju --</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.name} {cat.themes_count ? `(${cat.themes_count} tema)` : ''}
+                  {cat.name} {cat.themes_count ? `(Broj tema: ${cat.themes_count})` : ''}
                 </option>
               ))}
             </select>
