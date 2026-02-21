@@ -105,6 +105,7 @@ class ThemeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:themes,name',
             'description' => 'nullable|string',
+            'category_id' => 'required|integer|exists:categories,id',  // <-- DODATO!
         ]);
 
         $theme = Theme::create($validated);
@@ -112,7 +113,7 @@ class ThemeController extends Controller
         return response()->json([
             'message' => 'Theme created successfully',
             'theme' => new ThemeResource($theme),
-        ]);
+        ], 201);
     }
 
 

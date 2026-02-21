@@ -64,6 +64,9 @@ class WeatherController extends Controller
 
         $cacheKey = "weather:theme:{$theme->id}";
 
+        // Proveri da li postoji u kešu
+        $cached = Cache::has($cacheKey);
+
         $data = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($theme) {
             $response = Http::get('https://api.openweathermap.org/data/2.5/weather', [
                 'lat' => $theme->latitude,
@@ -88,7 +91,7 @@ class WeatherController extends Controller
                 'wind' => $data['wind']['speed'] ?? null,
                 'description' => $data['weather'][0]['description'] ?? null,
             ],
-            'cached' => true,
+            'cached' => $cached,
         ]);
     }
 }
