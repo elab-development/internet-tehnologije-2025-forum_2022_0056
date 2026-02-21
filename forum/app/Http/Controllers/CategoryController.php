@@ -10,6 +10,36 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+
+    /**
+     * @OA\Get(
+     *     path="/api/categories",
+     *     summary="Lista svih kategorija",
+     *     description="Vraća listu svih aktivnih kategorija sa brojem tema",
+     *     tags={"Categories"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Uspešno",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="categories", 
+     *                 type="array", 
+     *                 @OA\Items(type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Greška na serveru",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Greška pri učitavanju kategorija")
+     *         )
+     *     )
+     * )
+     */
+
     // Prikaz svih kategorija
     public function index()
     {
@@ -35,6 +65,39 @@ class CategoryController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/categories/{category}",
+     *     summary="Pojedinačna kategorija",
+     *     description="Vraća detalje jedne kategorije",
+     *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         description="ID kategorije",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Uspešno",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="category", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Kategorija nije pronađena"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Greška na serveru"
+     *     )
+     * )
+     */
+
     // Prikaz jedne kategorije
     public function show(Category $category)
     {
@@ -53,6 +116,56 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/categories",
+     *     summary="Kreiranje nove kategorije",
+     *     description="Kreira novu kategoriju (samo admin)",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="Planinarenje", description="Naziv kategorije"),
+     *             @OA\Property(property="description", type="string", example="Sve o planinarenju", description="Opis kategorije"),
+     *             @OA\Property(property="order", type="integer", example=1, description="Redosled prikaza")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Kategorija kreirana",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Kategorija je uspešno kreirana"),
+     *             @OA\Property(property="category", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Nije admin",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Samo administratori mogu kreirati kategorije")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Greška pri validaciji",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Validacija nije uspela"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Nije autentifikovan"
+     *     )
+     * )
+     */
 
     // Kreiranje nove kategorije (samo admin)
     public function store(Request $request)
@@ -99,6 +212,58 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+
+    /**
+     * @OA\Put(
+     *     path="/api/categories/{category}",
+     *     summary="Ažuriranje kategorije",
+     *     description="Ažurira postojeću kategoriju (samo admin)",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         description="ID kategorije",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Planinarenje", description="Naziv kategorije"),
+     *             @OA\Property(property="description", type="string", example="Sve o planinarenju", description="Opis kategorije"),
+     *             @OA\Property(property="order", type="integer", example=1, description="Redosled prikaza"),
+     *             @OA\Property(property="is_active", type="boolean", example=true, description="Status kategorije")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Kategorija ažurirana",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Kategorija je uspešno ažurirana"),
+     *             @OA\Property(property="category", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Nije admin",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Samo administratori mogu ažurirati kategorije")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Greška pri validaciji"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Nije autentifikovan"
+     *     )
+     * )
+     */
 
     /**
      * Ažuriranje kategorije (samo admin)
@@ -150,6 +315,52 @@ class CategoryController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Delete(
+     *     path="/api/categories/{category}",
+     *     summary="Brisanje kategorije",
+     *     description="Briše kategoriju (samo admin, samo ako nema tema)",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         description="ID kategorije",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Kategorija obrisana",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Kategorija je uspešno obrisana")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Nije admin",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Samo administratori mogu brisati kategorije")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Kategorija ima teme",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string", example="Ne možete obrisati kategoriju koja ima teme")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Nije autentifikovan"
+     *     )
+     * )
+     */
+
     // Brisanje kategorije (samo admin)
     public function destroy(Category $category)
     {
@@ -185,6 +396,44 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/categories/{category}/themes",
+     *     summary="Teme u kategoriji",
+     *     description="Vraća listu tema za određenu kategoriju",
+     *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         description="ID kategorije",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Uspešno",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="category", type="object"),
+     *             @OA\Property(
+     *                 property="themes", 
+     *                 type="array", 
+     *                 @OA\Items(type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Kategorija nije pronađena"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Greška na serveru"
+     *     )
+     * )
+     */
 
     //Prikaz tema u kategoriji
     public function themes(Category $category)

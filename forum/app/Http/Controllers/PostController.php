@@ -12,8 +12,105 @@ use Illuminate\Support\Facades\Auth;
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
+ * @OA\Get(
+ *     path="/api/posts",
+ *     summary="Lista svih postova",
+ *     description="Vraća paginiranu listu postova sa mogućnošću filtriranja i sortiranja",
+ *     tags={"Posts"},
+ *     @OA\Parameter(
+ *         name="per_page",
+ *         in="query",
+ *         description="Broj postova po stranici (5-100)",
+ *         required=false,
+ *         @OA\Schema(type="integer", default=20)
+ *     ),
+ *     @OA\Parameter(
+ *         name="sort_by",
+ *         in="query",
+ *         description="Polje po kome se sortira (created_at, replies_count, likes_count, title)",
+ *         required=false,
+ *         @OA\Schema(type="string", default="created_at")
+ *     ),
+ *     @OA\Parameter(
+ *         name="sort_dir",
+ *         in="query",
+ *         description="Smer sortiranja (asc ili desc)",
+ *         required=false,
+ *         @OA\Schema(type="string", default="desc")
+ *     ),
+ *     @OA\Parameter(
+ *         name="theme",
+ *         in="query",
+ *         description="Filter po nazivu teme",
+ *         required=false,
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="theme_id",
+ *         in="query",
+ *         description="Filter po ID teme",
+ *         required=false,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Parameter(
+ *         name="author_id",
+ *         in="query",
+ *         description="Filter po ID autora",
+ *         required=false,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Parameter(
+ *         name="author",
+ *         in="query",
+ *         description="Pretraga po imenu autora",
+ *         required=false,
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="q",
+ *         in="query",
+ *         description="Pretraga po naslovu i sadržaju",
+ *         required=false,
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="from",
+ *         in="query",
+ *         description="Datum od (YYYY-MM-DD)",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date")
+ *     ),
+ *     @OA\Parameter(
+ *         name="to",
+ *         in="query",
+ *         description="Datum do (YYYY-MM-DD)",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Uspešno",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="posts", 
+ *                 type="array", 
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(
+ *                 property="meta", 
+ *                 type="object",
+ *                 @OA\Property(property="current_page", type="integer"),
+ *                 @OA\Property(property="per_page", type="integer"),
+ *                 @OA\Property(property="total", type="integer"),
+ *                 @OA\Property(property="last_page", type="integer"),
+ *                 @OA\Property(property="sort_by", type="string"),
+ *                 @OA\Property(property="sort_dir", type="string")
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
     public function index(Request $request)
     {
         $perPage = (int) $request->query('per_page', 20);
@@ -95,6 +192,53 @@ class PostController extends Controller
         //
     }
 
+     /**
+     * @OA\Post(
+     *     path="/api/posts",
+     *     summary="Kreiranje novog posta",
+     *     description="Kreira novi post (ili odgovor na postojeći post)",
+     *     tags={"Posts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title","content"},
+     *             @OA\Property(property="title", type="string", example="Planinarski pohod na Stolovi", description="Naslov posta"),
+     *             @OA\Property(property="content", type="string", example="Juče smo bili na prelepom pohodu...", description="Sadržaj posta"),
+     *             @OA\Property(property="theme", type="string", example="Zimsko planinarenje", description="Naziv teme (alternativa za theme_id)"),
+     *             @OA\Property(property="theme_id", type="integer", example=1, description="ID teme"),
+     *             @OA\Property(property="replied_to_id", type="integer", example=5, description="ID posta na koji se odgovara (ako je odgovor)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Post uspešno kreiran",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Post created successfully"),
+     *             @OA\Property(property="post", ref="#/components/schemas/PostResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Nemate pravo publikovanja",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Only users with publishing rights can create posts")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Greška pri validaciji",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Theme is required (theme name or theme_id)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Nije autentifikovan"
+     *     )
+     * )
+     */
+
     /**
      * Store a newly created resource in storage.
      */
@@ -165,6 +309,34 @@ class PostController extends Controller
         ], 201);
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/posts/{post}",
+     *     summary="Pojedinačni post",
+     *     description="Vraća detalje jednog posta sa svim povezanim podacima",
+     *     tags={"Posts"},
+     *     @OA\Parameter(
+     *         name="post",
+     *         in="path",
+     *         description="ID posta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Uspešno",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="post", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Post nije pronađen"
+     *     )
+     * )
+     */
+
     /**
      * Display the specified resource.
      */
@@ -204,6 +376,42 @@ class PostController extends Controller
         //
     }
 
+
+    /**
+     * @OA\Delete(
+     *     path="/api/posts/{post}",
+     *     summary="Brisanje posta",
+     *     description="Briše post (samo vlasnik)",
+     *     tags={"Posts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="post",
+     *         in="path",
+     *         description="ID posta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Post uspešno obrisan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Post deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Niste vlasnik posta",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="You can only delete your own posts")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Nije autentifikovan"
+     *     )
+     * )
+     */
+
     /**
      * Remove the specified resource from storage.
      */
@@ -218,6 +426,54 @@ class PostController extends Controller
 
         return response()->json(['message' => 'Post deleted successfully']);
     }
+
+
+    /**
+ * @OA\Get(
+ *     path="/api/posts/{post}/replies",
+ *     summary="Odgovori na post",
+ *     description="Vraća listu odgovora za određeni post",
+ *     tags={"Posts"},
+ *     @OA\Parameter(
+ *         name="post",
+ *         in="path",
+ *         description="ID posta",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Parameter(
+ *         name="per_page",
+ *         in="query",
+ *         description="Broj odgovora po stranici",
+ *         required=false,
+ *         @OA\Schema(type="integer", default=20)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Uspešno",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="post_id", type="integer"),
+ *             @OA\Property(
+ *                 property="replies", 
+ *                 type="array", 
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(
+ *                 property="meta", 
+ *                 type="object",
+ *                 @OA\Property(property="current_page", type="integer"),
+ *                 @OA\Property(property="per_page", type="integer"),
+ *                 @OA\Property(property="total", type="integer"),
+ *                 @OA\Property(property="last_page", type="integer")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Post nije pronađen"
+ *     )
+ * )
+ */
 
     public function replies(Post $post, Request $request)
     {
@@ -245,6 +501,54 @@ class PostController extends Controller
             ],
         ]);
     }
+
+
+    /**
+ * @OA\Get(
+ *     path="/api/posts/{post}/likes",
+ *     summary="Lajkovi na postu",
+ *     description="Vraća listu korisnika koji su lajkovali post",
+ *     tags={"Posts"},
+ *     @OA\Parameter(
+ *         name="post",
+ *         in="path",
+ *         description="ID posta",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Parameter(
+ *         name="per_page",
+ *         in="query",
+ *         description="Broj lajkova po stranici",
+ *         required=false,
+ *         @OA\Schema(type="integer", default=50)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Uspešno",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="post_id", type="integer"),
+ *             @OA\Property(
+ *                 property="likes", 
+ *                 type="array", 
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(
+ *                 property="meta", 
+ *                 type="object",
+ *                 @OA\Property(property="current_page", type="integer"),
+ *                 @OA\Property(property="per_page", type="integer"),
+ *                 @OA\Property(property="total", type="integer"),
+ *                 @OA\Property(property="last_page", type="integer")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Post nije pronađen"
+ *     )
+ * )
+ */
 
     public function likes(Post $post, Request $request)
     {

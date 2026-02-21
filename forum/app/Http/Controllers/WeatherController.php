@@ -9,6 +9,51 @@ use Illuminate\Support\Facades\Http;
 
 class WeatherController extends Controller
 {
+
+    /**
+     * @OA\Get(
+     *     path="/api/themes/{theme}/weather",
+     *     summary="Vremenska prognoza za temu",
+     *     description="Vraća trenutne vremenske podatke za lokaciju teme (keširano 10 minuta)",
+     *     tags={"Weather"},
+     *     @OA\Parameter(
+     *         name="theme",
+     *         in="path",
+     *         description="ID teme",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Uspešno",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="location", type="string", example="Kopaonik"),
+     *             @OA\Property(
+     *                 property="weather",
+     *                 type="object",
+     *                 @OA\Property(property="temperature", type="number", format="float", example=15.5),
+     *                 @OA\Property(property="feels_like", type="number", format="float", example=14.2),
+     *                 @OA\Property(property="humidity", type="integer", example=65),
+     *                 @OA\Property(property="wind", type="number", format="float", example=3.6),
+     *                 @OA\Property(property="description", type="string", example="clear sky")
+     *             ),
+     *             @OA\Property(property="cached", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Tema nema lokaciju",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Theme has no location data")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=502,
+     *         description="Weather servis nije dostupan"
+     *     )
+     * )
+     */
+
      public function byTheme(Theme $theme)
     {
         if (!$theme->latitude || !$theme->longitude) {
