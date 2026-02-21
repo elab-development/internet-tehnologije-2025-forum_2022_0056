@@ -6,43 +6,43 @@ O projektu
 
 Planinarski Forum omogućava korisnicima da:
 
-Kreiraju i pregledaju postove o planinarskim turama
+- Kreiraju i pregledaju postove o planinarskim turama
 
-Lajkuju postove drugih korisnika
+- Lajkuju postove drugih korisnika
 
-Pretražuju teme i kategorije
+- Pretražuju teme i kategorije
 
-Prate vremensku prognozu za planinske predele
+- Prate vremensku prognozu za planinske predele
 
-Administriraju sadržaj (za korisnike sa admin privilegijama)
+- Administriraju sadržaj (za korisnike sa admin privilegijama)
 
 
 Tehnologije
 
 Frontend
 
-React 18 - Biblioteka za korisnički interfejs
+- React 18 - Biblioteka za korisnički interfejs
 
-React Router DOM - Rutanje na klijentskoj strani
+- React Router DOM - Rutanje na klijentskoj strani
 
-CSS3 - Stilizovanje komponenti
+- CSS3 - Stilizovanje komponenti
 
-Vite - Build alat i razvojni server
+- Vite - Build alat i razvojni server
 
-ESLint - Linting JavaScript/JSX koda
+- ESLint - Linting JavaScript/JSX koda
 
 
 Backend
 
-Laravel 11 - PHP framework za backend
+- Laravel 11 - PHP framework za backend
 
-MySQL - Relaciona baza podataka
+- MySQL - Relaciona baza podataka
 
-Laravel Sanctum - Autentifikacija i autorizacija
+- Laravel Sanctum - Autentifikacija i autorizacija
 
-REST API - Arhitektura za komunikaciju
+- REST API - Arhitektura za komunikaciju
 
-Swagger / OpenAPI - Dokumentacija API-ja
+- Swagger / OpenAPI - Dokumentacija API-ja
 
 
 Funkcionalnosti
@@ -115,6 +115,5 @@ npm run dev
 
 Autori
 
-Jovana Maksimović 2022/0056
-
-Aleksa Marić 2022/0317
+- Jovana Maksimović 2022/0056
+- Aleksa Marić 2022/0317
