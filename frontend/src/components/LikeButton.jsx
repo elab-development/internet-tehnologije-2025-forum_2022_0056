@@ -1,6 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../contexts/UserContext';
 
+// Helper funkcija za čitanje cookie-ja
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    let cookieValue = parts.pop().split(';').shift();
+    return decodeURIComponent(cookieValue);
+  }
+  return null;
+}
+
 function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLikeChange }) {
   const { user } = useContext(UserContext);
   const [likes, setLikes] = useState(initialLikes);
@@ -29,6 +40,17 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
     const token = localStorage.getItem('token');
 
     try {
+      // 1. Prvo uzmi CSRF cookie (kao u Login)
+      await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+        credentials: "include",
+      });
+
+      // 2. Sačekaj malo da se cookie sačuva
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // 3. Uzmi XSRF token iz cookie-ja
+      const xsrfToken = getCookie('XSRF-TOKEN');
+
       if (isLiked) {
         // UNLIKE
         const response = await fetch(`http://localhost:8000/api/posts/${postId}/like`, {
@@ -37,11 +59,16 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': xsrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
           },
           credentials: 'include',
         });
 
         if (!response.ok) {
+          if (response.status === 419) {
+            throw new Error('CSRF token expired - refresh page and try again');
+          }
           const errorData = await response.json();
           throw new Error(errorData.error || 'Greška pri unlike-ovanju');
         }
@@ -60,11 +87,16 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': xsrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
           },
           credentials: 'include',
         });
 
         if (!response.ok) {
+          if (response.status === 419) {
+            throw new Error('CSRF token expired - refresh page and try again');
+          }
           const errorData = await response.json();
           throw new Error(errorData.error || 'Greška pri lajkovanju');
         }
@@ -92,6 +124,7 @@ function LikeButton({ postId, initialLikes = 0, isInitiallyLiked = false, onLike
     }
   };
 
+  // Animacije (isti CSS)
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
       {/* HEART FLOAT ANIMATION */}

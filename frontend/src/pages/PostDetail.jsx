@@ -5,6 +5,17 @@ import Button from '../components/Button';
 import LikeButton from '../components/LikeButton';
 import { useLikes } from '../hooks/useLikes'; 
 
+// Helper funkcija za čitanje cookie-ja - DODATO
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    let cookieValue = parts.pop().split(';').shift();
+    return decodeURIComponent(cookieValue);
+  }
+  return null;
+}
+
 function PostDetail() {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
@@ -82,12 +93,27 @@ function PostDetail() {
     const token = localStorage.getItem('token');
 
     try {
+      // 1. Prvo uzmi CSRF cookie (DODATO)
+      console.log("1. Fetching CSRF cookie...");
+      await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+        credentials: "include",
+      });
+
+      // 2. Sačekaj malo da se cookie sačuva
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // 3. Uzmi XSRF token iz cookie-ja (DODATO)
+      const xsrfToken = getCookie('XSRF-TOKEN');
+      console.log("2. XSRF Token:", xsrfToken ? "PRONAĐEN" : "NIJE PRONAĐEN");
+
       const response = await fetch('http://localhost:8000/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'X-XSRF-TOKEN': xsrfToken,        // DODATO
+          'X-Requested-With': 'XMLHttpRequest', // DODATO
         },
         body: JSON.stringify({
           title: `Re: ${post?.title || 'Objava'}`,
@@ -101,6 +127,9 @@ function PostDetail() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 419) {
+          throw new Error('CSRF token expired - osvežite stranicu i pokušajte ponovo');
+        }
         throw new Error(data.error || 'Greška pri slanju odgovora');
       }
 
@@ -364,7 +393,7 @@ function PostDetail() {
   );
 }
 
-// STILOVI
+// STILOVI (isti kao u tvom kodu)
 const styles = {
   container: {
     maxWidth: '800px',
@@ -555,12 +584,6 @@ const styles = {
     minHeight: '120px',
     boxSizing: 'border-box',
     transition: 'border 0.2s ease',
-  },
-
-  replyTextareaFocus: {
-    border: '1px solid #3498db',
-    outline: 'none',
-    boxShadow: '0 0 0 3px rgba(52, 152, 219, 0.1)',
   },
 
   charCount: {

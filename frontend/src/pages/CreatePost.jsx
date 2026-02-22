@@ -2,6 +2,17 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 
+// Helper funkcija za čitanje cookie-ja
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    let cookieValue = parts.pop().split(';').shift();
+    return decodeURIComponent(cookieValue);
+  }
+  return null;
+}
+
 function CreatePost() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
@@ -111,12 +122,28 @@ function CreatePost() {
     const token = localStorage.getItem('token');
 
     try {
+      // 1. Prvo uzmi CSRF cookie
+      console.log("1. Fetching CSRF cookie...");
+      await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+        credentials: "include",
+      });
+
+      // 2. Sačekaj malo da se cookie sačuva
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // 3. Uzmi XSRF token iz cookie-ja
+      const xsrfToken = getCookie('XSRF-TOKEN');
+      console.log("2. XSRF Token:", xsrfToken ? "PRONAĐEN" : "NIJE PRONAĐEN");
+
+      // 4. Pošalji zahtev sa CSRF tokenom
       const response = await fetch('http://localhost:8000/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'X-XSRF-TOKEN': xsrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
         },
         body: JSON.stringify({
           title: formData.title,
@@ -129,6 +156,9 @@ function CreatePost() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 419) {
+          throw new Error('CSRF token expired - osvežite stranicu i pokušajte ponovo');
+        }
         throw new Error(data.error || 'Greška pri kreiranju objave');
       }
 
@@ -147,6 +177,19 @@ function CreatePost() {
       setLoading(false);
     }
   };
+
+  // Animacija za progress bar
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes progressBar {
+        0% { width: 0%; }
+        100% { width: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
 
   if (!user) {
     return (
