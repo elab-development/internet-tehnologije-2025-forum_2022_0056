@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # MySQL baza
+  database:
+    image: mysql:8.0
+    container_name: forum_database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: forum
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - forum_db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - forum_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  # phpMyAdmin - DODAJ OVO!
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: forum_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "8080:80"
+    networks:
+      - forum_network
+    depends_on:
+      - database
+
+  # Backend (Laravel)
+  backend:
+    build:
+      context: ./forum
+      dockerfile: Dockerfile
+    container_name: forum_backend
+    restart: unless-stopped
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_DATABASE=forum
+      - DB_USERNAME=root
+      - DB_PASSWORD=rootpassword
+    volumes:
+      - ./forum:/var/www
+    networks:
+      - forum_network
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # Nginx za backend
+  nginx:
+    image: nginx:alpine
+    container_name: forum_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./forum:/var/www
+      - ./forum/docker/nginx:/etc/nginx/conf.d
+    networks:
+      - forum_network
+    depends_on:
+      - backend
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: forum_frontend
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - forum_network
+    depends_on:
+      - backend
+      - nginx
+
+networks:
+  forum_network:
+    driver: bridge
+
+volumes:
+  forum_db_data:

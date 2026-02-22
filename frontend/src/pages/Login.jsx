@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 
+// Helper funkcija za čitanje cookie-ja - DODAJ OVO NA VRH FAJLA
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    let cookieValue = parts.pop().split(';').shift();
+    return decodeURIComponent(cookieValue);
+  }
+  return null;
+}
+
 function Login() {
   const navigate = useNavigate();
   const { setUser } = useUser();
@@ -16,17 +27,29 @@ function Login() {
     setError(null);
 
     try {
-      //UZMI CSRF COOKIE
+      // 1. Uzmi CSRF cookie
+      console.log("1. Fetching CSRF cookie...");
       await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+        method: "GET",
         credentials: "include",
       });
 
-      //POŠALJI LOGIN PODATKE
+      // 2. Sačekaj malo da se cookie sačuva
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // 3. Uzmi XSRF token iz cookie-ja
+      const xsrfToken = getCookie('XSRF-TOKEN');
+      console.log("2. XSRF Token:", xsrfToken ? "PRONAĐEN" : "NIJE PRONAĐEN");
+
+      // 4. Pošalji login sa tokenom u headeru
+      console.log("3. Sending login request...");
       const res = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          "X-XSRF-TOKEN": xsrfToken,  // <-- Token iz cookie-ja
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({ email, password }),
         credentials: "include",
@@ -38,13 +61,18 @@ function Login() {
       }
 
       const data = await res.json();
+      console.log("4. Login successful!");
+      
       localStorage.setItem("token", data.access_token);
       
-      //DOHVATI KORISNIČKE PODATKE
+      // 5. Dohvati korisničke podatke
+      console.log("5. Fetching user data...");
       const userRes = await fetch("http://localhost:8000/api/user", {
+        method: "GET",
         headers: { 
           "Authorization": `Bearer ${data.access_token}`,
-          "Accept": "application/json"
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         credentials: "include",
       });
@@ -56,7 +84,7 @@ function Login() {
       const userData = await userRes.json();
       setUser(userData);
       
-      //PREUSMERI NA POČETNU
+      // PREUSMERI NA POČETNU
       navigate("/");
       
     } catch (err) {

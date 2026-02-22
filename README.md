@@ -59,11 +59,11 @@ Frontend (React)
 
 - JS/JSX funkcionalnosti:
 
-Weather komponenta sa prikazom vremenske prognoze
+    - Weather komponenta sa prikazom vremenske prognoze
 
-LikeButton za lajkovanje postova
+    - LikeButton za lajkovanje postova
 
-Privatne rute sa zaštitom (PrivateRoute)
+    - Privatne rute sa zaštitom (PrivateRoute)
 
 - React hooks: useState, useEffect, useContext, useNavigate
 
@@ -91,26 +91,26 @@ Lokalno pokretanje
 
 Backend (Laravel)
 
-cd forum
+- cd forum
 
-composer install
+- composer install
 
-cp .env.example .env
+- cp .env.example .env
 
-php artisan key:generate
+- php artisan key:generate
 
-php artisan migrate --seed
+- php artisan migrate --seed
 
-php artisan serve
+- php artisan serve
 
 
 Frontend (React)
 
-cd frontend
+- cd frontend
 
-npm install
+- npm install
 
-npm run dev
+- npm run dev
 
 
 Autori
