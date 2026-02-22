@@ -1,0 +1,42 @@
+name: Testovi
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  tests:
+    name: Pokretanje testova
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout kod
+        uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, bcmath
+      
+      - name: Instaliraj Composer zavisnosti
+        run: |
+          cd forum
+          composer install --no-progress --prefer-dist
+      
+      - name: Kopiraj .env
+        run: |
+          cd forum
+          cp .env.example .env
+      
+      - name: Generiši ključ
+        run: |
+          cd forum
+          php artisan key:generate
+      
+      - name: Pokreni testove
+        run: |
+          cd forum
+          php artisan test
