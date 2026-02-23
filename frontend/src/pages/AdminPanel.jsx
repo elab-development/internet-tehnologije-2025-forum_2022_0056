@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import Button from '../components/Button';
+import UserStatsChart from '../components/UserStatsChart';
 
 function AdminPanel() {
   const { user } = useContext(UserContext);
@@ -12,6 +13,13 @@ function AdminPanel() {
     users: 0,
     posts: 0,
     themes: 0,
+    roles: {                    
+      admin: 0,
+      moderator: 0,
+      user: 0
+    },
+    total: 0,                  
+    registrations_by_month: [] 
   });
   
   const [users, setUsers] = useState([]);
@@ -122,6 +130,13 @@ function AdminPanel() {
             users: data.stats.users || 0,
             posts: data.stats.posts || 0,
             themes: data.stats.themes || 0,
+            roles: data.stats.roles || {
+              admin: 0,
+              moderator: 0,
+              user: 0
+            },
+            total: data.stats.total || 0,
+            registrations_by_month: data.stats.registrations_by_month || []
           });
         }
       }
@@ -336,6 +351,12 @@ function AdminPanel() {
         >
           📝 Sadržaj
         </button>
+        <button
+          onClick={() => setActiveTab('statistics')}
+          style={activeTab === 'statistics' ? styles.activeTab : styles.tab}
+        >
+          📊 Statistika
+        </button>
       </div>
 
       {/* TAB SADRŽAJ */}
@@ -503,6 +524,12 @@ function AdminPanel() {
                   </div>
                 </div>
                 
+              </div>
+            )}
+            {activeTab === 'statistics' && (
+              <div style={styles.statisticsTab}>
+                <h2 style={{ marginBottom: '20px', color: '#1a237e' }}>📊 Statistika foruma</h2>
+                <UserStatsChart stats={stats} />
               </div>
             )}
           </>
@@ -817,6 +844,17 @@ const styles = {
     textAlign: 'center',
     padding: '60px 20px',
   },
+
+  statisticsTab: {
+      padding: '20px 0',
+    },
+    
+    tabNav: {
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '30px',
+      flexWrap: 'wrap', 
+    },
 };
 
 const styleSheet = document.createElement('style');

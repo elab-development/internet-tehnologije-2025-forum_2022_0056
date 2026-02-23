@@ -363,6 +363,26 @@ class AdminController extends Controller
             $recentUsers = User::where('created_at', '>=', now()->subDays(7))->count();
             $recentPosts = \App\Models\Post::where('created_at', '>=', now()->subDays(7))->count();
 
+            $rolesStats = [
+                'admin' => User::where('role', 'admin')->count(),
+                'moderator' => User::where('role', 'moderator')->count(),
+                'user' => User::where('role', 'user')->count(),
+            ];
+
+            $registrationsByMonth = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+                ->whereYear('created_at', date('Y'))
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'month' => (int)$item->month,
+                        'count' => (int)$item->count
+                    ];
+            });
+
+            $totalUsers = $userCount;
+
             return response()->json([
                 'success' => true,
                 'stats' => [
@@ -372,6 +392,10 @@ class AdminController extends Controller
                     'likes' => $likesCount,
                     'recent_users' => $recentUsers,
                     'recent_posts' => $recentPosts,
+
+                    'roles' => $rolesStats,
+                    'total' => $totalUsers,
+                    'registrations_by_month' => $registrationsByMonth,
                 ],
                 'updated_at' => now()->toDateTimeString(),
             ]);

@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 10
 
-  # phpMyAdmin - DODAJ OVO!
+  # phpMyAdmin 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: forum_phpmyadmin
