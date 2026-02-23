@@ -222,37 +222,46 @@ class AdminTest extends TestCase
     }
 
     /** @test */
-    public function admin_can_view_stats()
-    {
-        $this->actingAs($this->admin);
+   public function admin_can_view_stats()
+{
+    $this->actingAs($this->admin);
 
-        // Kreiramo neke postove za statistiku
-        Post::factory()->count(5)->create([
-            'user_id' => $this->regularUser->id,
-            'theme_id' => $this->theme->id
-        ]);
+    // Kreiramo neke postove za statistiku
+    Post::factory()->count(5)->create([
+        'user_id' => $this->regularUser->id,
+        'theme_id' => $this->theme->id
+    ]);
 
-        $response = $this->getJson('/api/admin/stats');
+    $response = $this->getJson('/api/admin/stats');
 
-        $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'stats' => [
-                         'users',
-                         'posts',
-                         'themes',
-                         'likes',
-                         'recent_users',
-                         'recent_posts'
-                     ],
-                     'updated_at'
-                 ]);
+    $response->assertStatus(200)
+             ->assertJsonStructure([
+                 'success',
+                 'stats' => [
+                     'users',
+                     'posts',
+                     'themes',
+                     'likes',
+                     'recent_users',
+                     'recent_posts',
+                     // NOVO: Dodaj nove podatke u očekivanu strukturu
+                     'roles' => ['admin', 'moderator', 'user'],
+                     'total',
+                     'registrations_by_month'
+                 ],
+                 'updated_at'
+             ]);
 
-        $this->assertTrue($response->json('success'));
-        $this->assertEquals(3, $response->json('stats.users')); // admin, moderator, user
-        $this->assertEquals(5, $response->json('stats.posts'));
-    }
-
+    $this->assertTrue($response->json('success'));
+    $this->assertEquals(3, $response->json('stats.users')); // admin, moderator, user
+    $this->assertEquals(5, $response->json('stats.posts'));
+    
+    // NOVO: Dodaj provere za nove podatke
+    $this->assertEquals(1, $response->json('stats.roles.admin'));
+    $this->assertEquals(1, $response->json('stats.roles.moderator'));
+    $this->assertEquals(1, $response->json('stats.roles.user'));
+    $this->assertEquals(3, $response->json('stats.total'));
+}
     /** @test */
     public function moderator_can_view_stats()
     {
