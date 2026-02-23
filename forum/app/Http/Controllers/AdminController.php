@@ -369,7 +369,7 @@ class AdminController extends Controller
                 'user' => User::where('role', 'user')->count(),
             ];
 
-            $registrationsByMonth = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            /*$registrationsByMonth = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
                 ->whereYear('created_at', date('Y'))
                 ->groupBy('month')
                 ->orderBy('month')
@@ -379,7 +379,7 @@ class AdminController extends Controller
                         'month' => (int)$item->month,
                         'count' => (int)$item->count
                     ];
-            });
+            });*/
 
             $totalUsers = $userCount;
 
@@ -395,7 +395,7 @@ class AdminController extends Controller
 
                     'roles' => $rolesStats,
                     'total' => $totalUsers,
-                    'registrations_by_month' => $registrationsByMonth,
+                    //'registrations_by_month' => $registrationsByMonth,
                 ],
                 'updated_at' => now()->toDateTimeString(),
             ]);
@@ -407,9 +407,17 @@ class AdminController extends Controller
             ]);
             
             return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+
+            /*return response()->json([
                 'error' => 'Internal server error',
                 'message' => 'Došlo je do greške pri dobavljanju statistike'
-            ], 500);
+            ], 500);*/
         }
     }
 

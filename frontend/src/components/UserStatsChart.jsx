@@ -149,14 +149,14 @@ const UserStatsChart = ({ stats }) => {
       </div>
 
       {/* Drugi red - Bar grafikon (ako ima podataka) */}
-      {stats.registrations_by_month && stats.registrations_by_month.length > 0 && (
+      {/*{stats.registrations_by_month && stats.registrations_by_month.length > 0 && (
         <div style={styles.row}>
           <div style={styles.fullWidthCard}>
             <h3 style={styles.chartTitle}>📈 Registracije po mesecima</h3>
             <div id="barchart" style={styles.chart}></div>
           </div>
         </div>
-      )}
+      )}*/}
 
       {/* Info box */}
       <div style={styles.infoBox}>
